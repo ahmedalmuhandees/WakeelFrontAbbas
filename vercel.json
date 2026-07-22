@@ -1,0 +1,57 @@
+{
+  "installCommand": "cd wakeelfrontend && npm install",
+  "buildCommand": "cd wakeelfrontend && npm run build",
+  "outputDirectory": "wakeelfrontend/build",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/wakeel/",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/wakeel/static/:path*",
+      "destination": "/static/:path*"
+    },
+    {
+      "source": "/wakeel/logo192.png",
+      "destination": "/logo192.png"
+    },
+    {
+      "source": "/wakeel/logo512.png",
+      "destination": "/logo512.png"
+    },
+    {
+      "source": "/wakeel/manifest.json",
+      "destination": "/manifest.json"
+    },
+    {
+      "source": "/wakeel/favicon.ico",
+      "destination": "/favicon.ico"
+    },
+    {
+      "source": "/wakeel/wakeel.mobileconfig",
+      "destination": "/wakeel.mobileconfig"
+    },
+    {
+      "source": "/wakeel/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/wakeel",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*).mobileconfig",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/x-apple-aspen-config"
+        }
+      ]
+    }
+  ]
+}

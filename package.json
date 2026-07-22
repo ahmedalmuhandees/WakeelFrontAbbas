@@ -1,0 +1,10 @@
+{
+  "name": "wakellfrontenfd-main",
+  "private": true,
+  "description": "Root wrapper — التطبيق في مجلد wakeelfrontend",
+  "scripts": {
+    "start": "npm run start --prefix wakeelfrontend",
+    "build": "npm run build --prefix wakeelfrontend",
+    "test": "npm test --prefix wakeelfrontend"
+  }
+}
