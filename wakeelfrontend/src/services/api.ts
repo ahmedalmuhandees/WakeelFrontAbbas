@@ -87,6 +87,8 @@ import {
   SasSyncRequest,
   SasSyncResponse,
   SasSyncUsingSavedCredentialsResponse,
+  SyncContractIdToFatRequest,
+  SyncContractIdToFatResponse,
   SyncSubscribersRequest,
   SyncSubscribersResponse,
   SubscriberFetchLimitOption,
@@ -5030,6 +5032,29 @@ class ApiService {
       '/providers/sas/sync-subscribers-sas',
       {},
       { params: { resellerId }, timeout: ApiService.SAS_SYNC_TIMEOUT_MS }
+    );
+    return response.data;
+  }
+
+  /**
+   * مزامنة مطور: سحب مستخدمي SAS (بما فيهم غير المفعّلين) ومطابقة مشتركي الرسيلر ثم تحديث Fat من contract_id.
+   * POST /providers/sas/sync-contract-id-to-fat?resellerId=...
+   */
+  async syncContractIdToFat(
+    resellerId: string,
+    body: SyncContractIdToFatRequest
+  ): Promise<SyncContractIdToFatResponse> {
+    const response: AxiosResponse<SyncContractIdToFatResponse> = await this.api.post(
+      '/providers/sas/sync-contract-id-to-fat',
+      {
+        baseUrl: body.baseUrl.trim(),
+        username: body.username.trim(),
+        password: body.password,
+      },
+      {
+        params: { resellerId: resellerId.trim() },
+        timeout: ApiService.SAS_SYNC_TIMEOUT_MS,
+      }
     );
     return response.data;
   }

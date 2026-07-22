@@ -69,6 +69,7 @@ import {
   Search,
   Activity,
   Receipt,
+  Code2,
 } from 'lucide-react';
 import { InvoicePrintTemplateSettings } from '../components/settings/InvoicePrintTemplateSettings';
 
@@ -937,6 +938,42 @@ function SettingsPage() {
     onError: (err: unknown, variables) => {
       const label = variables ? formatServiceTypeLabelAr(variables.serviceType) : 'المزامنة';
       showError(label, ApiService.showError(err));
+    },
+  });
+
+  /** مزامنة مطور: contract_id → Fat لمشتركي رسيلر SAS */
+  const syncContractIdToFatMutation = useMutation({
+    mutationFn: (reseller: AgentReseller) => {
+      const baseUrl = (reseller.baseUrl || '').trim();
+      const username = (reseller.username || '').trim();
+      const password = (reseller.password || '').trim();
+      if (!reseller.id?.trim()) {
+        return Promise.reject(new Error('معرّف الرسيلر مطلوب.'));
+      }
+      if (!baseUrl || !username || !password) {
+        return Promise.reject(
+          new Error('يلزم رابط الرسيلر واسم المستخدم وكلمة المرور لمزامنة مطور.')
+        );
+      }
+      return apiService.syncContractIdToFat(reseller.id, { baseUrl, username, password });
+    },
+    onSuccess: (data) => {
+      if (data.error) {
+        showError('مزامنة مطور', data.error);
+        return;
+      }
+      const updated = data.updated ?? data.synced;
+      const parts = [
+        data.message?.trim() || 'اكتملت مزامنة contract_id إلى Fat',
+        updated != null ? `تم تحديث ${updated}` : null,
+        data.matched != null ? `مطابقة ${data.matched}` : null,
+        data.total != null ? `إجمالي SAS ${data.total}` : null,
+      ].filter(Boolean);
+      showSuccess('مزامنة مطور', parts.join(' — '));
+      void queryClient.invalidateQueries({ queryKey: ['subscribers'] });
+    },
+    onError: (err: unknown) => {
+      showError('مزامنة مطور', ApiService.showError(err));
     },
   });
 
@@ -2165,6 +2202,7 @@ function SettingsPage() {
                                 exportSasSubscribersMutation.isPending ||
                                 exportFtthSubscribersMutation.isPending ||
                                 fiProviderResellerSyncMutation.isPending ||
+                                syncContractIdToFatMutation.isPending ||
                                 pullLoadingModalOpen ||
                                 pullImportModalOpen
                               }
@@ -2179,6 +2217,39 @@ function SettingsPage() {
                               <span>سحب / تنزيل (SAS)</span>
                             </button>
                           )}
+                          {r.serviceType === ServiceType.Sas && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (
+                                  !window.confirm(
+                                    'مزامنة مطور: سحب مستخدمي SAS (بما فيهم غير المفعّلين) وتحديث Fat من contract_id لمشتركي هذا الرسيلر؟'
+                                  )
+                                ) {
+                                  return;
+                                }
+                                syncContractIdToFatMutation.mutate(r);
+                              }}
+                              disabled={
+                                syncContractIdToFatMutation.isPending ||
+                                exportSasSubscribersMutation.isPending ||
+                                exportFtthSubscribersMutation.isPending ||
+                                fiProviderResellerSyncMutation.isPending ||
+                                pullLoadingModalOpen ||
+                                pullImportModalOpen
+                              }
+                              className="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-800 text-white rounded-md disabled:opacity-50 flex items-center gap-1"
+                              title="مزامنة مطور: تحديث Fat من contract_id عبر مطابقة ExternalId/Username"
+                            >
+                              {syncContractIdToFatMutation.isPending &&
+                              syncContractIdToFatMutation.variables?.id === r.id ? (
+                                <RefreshCw className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Code2 className="h-3 w-3" />
+                              )}
+                              <span>مزامنة مطور</span>
+                            </button>
+                          )}
                           {r.serviceType === ServiceType.Ftth && (
                             <button
                               type="button"
@@ -2187,6 +2258,7 @@ function SettingsPage() {
                                 exportFtthSubscribersMutation.isPending ||
                                 exportSasSubscribersMutation.isPending ||
                                 fiProviderResellerSyncMutation.isPending ||
+                                syncContractIdToFatMutation.isPending ||
                                 pullLoadingModalOpen ||
                                 pullImportModalOpen
                               }
@@ -2220,6 +2292,7 @@ function SettingsPage() {
                                   fiProviderResellerSyncMutation.isPending ||
                                   exportSasSubscribersMutation.isPending ||
                                   exportFtthSubscribersMutation.isPending ||
+                                  syncContractIdToFatMutation.isPending ||
                                   pullLoadingModalOpen ||
                                   pullImportModalOpen
                                 }
@@ -2250,6 +2323,7 @@ function SettingsPage() {
                                   fiProviderResellerSyncMutation.isPending ||
                                   exportSasSubscribersMutation.isPending ||
                                   exportFtthSubscribersMutation.isPending ||
+                                  syncContractIdToFatMutation.isPending ||
                                   pullLoadingModalOpen ||
                                   pullImportModalOpen
                                 }

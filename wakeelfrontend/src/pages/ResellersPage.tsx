@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { apiService } from '../services/api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiService, ApiService } from '../services/api';
 import { AgentResellerCredentialsDto, ServiceType, formatServiceTypeLabelAr } from '../types';
 import WifiLoaderComponent from '../components/WifiLoaderComponent';
-import { UserCheck, Copy, Check } from 'lucide-react';
+import { UserCheck, Copy, Check, Code2, RefreshCw } from 'lucide-react';
 import { showSuccess, showError } from '../utils/notifications';
 import Pagination from '../components/Pagination';
 
@@ -34,6 +34,40 @@ const ResellersPage: React.FC = () => {
   });
 
   const items: AgentResellerCredentialsDto[] = data?.data ?? [];
+
+  const syncContractIdToFatMutation = useMutation({
+    mutationFn: (row: AgentResellerCredentialsDto) => {
+      const baseUrl = (row.baseUrl || '').trim();
+      const username = (row.username || '').trim();
+      const password = (row.password || '').trim();
+      if (!row.resellerId?.trim()) {
+        return Promise.reject(new Error('معرّف الرسيلر مطلوب.'));
+      }
+      if (!baseUrl || !username || !password) {
+        return Promise.reject(
+          new Error('يلزم رابط الرسيلر واسم المستخدم وكلمة المرور لمزامنة مطور.')
+        );
+      }
+      return apiService.syncContractIdToFat(row.resellerId, { baseUrl, username, password });
+    },
+    onSuccess: (result) => {
+      if (result.error) {
+        showError('مزامنة مطور', result.error);
+        return;
+      }
+      const updated = result.updated ?? result.synced;
+      const parts = [
+        result.message?.trim() || 'اكتملت مزامنة contract_id إلى Fat',
+        updated != null ? `تم تحديث ${updated}` : null,
+        result.matched != null ? `مطابقة ${result.matched}` : null,
+        result.total != null ? `إجمالي SAS ${result.total}` : null,
+      ].filter(Boolean);
+      showSuccess('مزامنة مطور', parts.join(' — '));
+    },
+    onError: (err: unknown) => {
+      showError('مزامنة مطور', ApiService.showError(err));
+    },
+  });
 
   const copyToClipboard = async (text: string, label: string) => {
     try {
@@ -153,7 +187,7 @@ const ResellersPage: React.FC = () => {
                 <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   تاريخ الإضافة
                 </th>
-                <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">
+                <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[9rem]">
                   إجراءات
                 </th>
               </tr>
@@ -168,6 +202,9 @@ const ResellersPage: React.FC = () => {
                       : row.serviceType === ServiceType.Zainfi || row.serviceType === ServiceType.Fiberx
                         ? 'bg-violet-100 text-violet-800 dark:bg-violet-900/20 dark:text-violet-300'
                         : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300';
+                const isSyncingThis =
+                  syncContractIdToFatMutation.isPending &&
+                  syncContractIdToFatMutation.variables?.resellerId === row.resellerId;
                 return (
                   <tr key={row.resellerId} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
                     <td className="px-4 py-3 text-sm text-gray-900 dark:text-white font-medium">
@@ -194,7 +231,32 @@ const ResellersPage: React.FC = () => {
                       {row.createdAt ? formatDate(row.createdAt) : '—'}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1 justify-end">
+                      <div className="flex flex-wrap items-center gap-1 justify-end">
+                        {row.serviceType === ServiceType.Sas && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (
+                                !window.confirm(
+                                  `مزامنة مطور للرسيلر «${row.name || row.resellerId}»: تحديث Fat من contract_id؟`
+                                )
+                              ) {
+                                return;
+                              }
+                              syncContractIdToFatMutation.mutate(row);
+                            }}
+                            disabled={syncContractIdToFatMutation.isPending}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-700 hover:bg-slate-800 text-white disabled:opacity-50"
+                            title="مزامنة مطور: تحديث Fat من contract_id"
+                          >
+                            {isSyncingThis ? (
+                              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Code2 className="h-3.5 w-3.5" />
+                            )}
+                            <span>مزامنة مطور</span>
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => copyToClipboard(row.password ?? '', `pwd-${row.resellerId}`)}

@@ -491,6 +491,23 @@ export interface SasSyncResponse {
   synced: number;
 }
 
+/** طلب POST /providers/sas/sync-contract-id-to-fat?resellerId=... */
+export interface SyncContractIdToFatRequest {
+  baseUrl: string;
+  username: string;
+  password: string;
+}
+
+/** استجابة مزامنة contract_id → Fat */
+export interface SyncContractIdToFatResponse {
+  message?: string;
+  synced?: number;
+  updated?: number;
+  matched?: number;
+  total?: number;
+  error?: string;
+}
+
 /** استجابة POST /providers/sas/sync-using-saved-credentials — المزامنة باستخدام الاعتماديات المحفوظة فقط */
 export interface SasSyncUsingSavedCredentialsResponse {
   message: string;
