@@ -32,6 +32,10 @@
       "destination": "/wakeel.mobileconfig"
     },
     {
+      "source": "/wakeel/aljizany-logo.jpeg",
+      "destination": "/aljizany-logo.jpeg"
+    },
+    {
       "source": "/wakeel/:path*",
       "destination": "/index.html"
     },

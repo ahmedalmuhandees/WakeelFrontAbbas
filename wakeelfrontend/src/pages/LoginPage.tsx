@@ -6,8 +6,7 @@ import { Eye, EyeOff, User, Lock, AlertTriangle, RefreshCw } from 'lucide-react'
 import WifiLoaderComponent from '../components/WifiLoaderComponent';
 import { apiService, ApiService } from '../services/api';
 import { showSuccess } from '../utils/notifications';
-
-const ALJIZANY_LOGO = `${process.env.PUBLIC_URL || ''}/aljizany-logo.jpeg`;
+import aljizanyLogo from '../images/aljizany-logo.jpeg';
 
 // const TURNSTILE_SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY || '0x4AAAAAACh0LGLTfAOqhxi6';
 
@@ -407,7 +406,7 @@ const LoginPage: React.FC = () => {
             <div className="aj-login-logo-wrap mx-auto mb-4">
               <div className="aj-login-glow" aria-hidden />
               <div className="aj-login-ring" aria-hidden />
-              <img src={ALJIZANY_LOGO} alt="ALJIzany" className="aj-login-logo" />
+              <img src={aljizanyLogo} alt="ALJIzany" className="aj-login-logo" />
             </div>
             <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-wide">
               ALJIzany

@@ -10,8 +10,8 @@ import {
   LogIn,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import aljizanyLogo from '../images/aljizany-logo.jpeg';
 
-const LOGO_SRC = `${process.env.PUBLIC_URL || ''}/aljizany-logo.jpeg`;
 const WHATSAPP_URL = 'https://api.whatsapp.com/send?phone=9647740240101';
 
 const LandingPage: React.FC = () => {
@@ -134,7 +134,7 @@ const LandingPage: React.FC = () => {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <img
-              src={LOGO_SRC}
+              src={aljizanyLogo}
               alt="ALJIzany"
               className="h-11 w-11 rounded-full object-cover ring-1 ring-[var(--aj-gold)]/50 sm:h-12 sm:w-12"
             />
@@ -179,7 +179,7 @@ const LandingPage: React.FC = () => {
         />
 
         <img
-          src={LOGO_SRC}
+          src={aljizanyLogo}
           alt="شعار ALJIzany"
           className="aj-logo-anim relative z-10 mb-8 h-44 w-44 rounded-full object-cover shadow-[0_0_0_1px_rgba(232,163,23,0.35)] sm:h-56 sm:w-56 md:h-64 md:w-64"
         />
@@ -280,7 +280,7 @@ const LandingPage: React.FC = () => {
       <footer className="border-t border-[var(--aj-line)]/30 bg-black py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <img src={LOGO_SRC} alt="" className="h-10 w-10 rounded-full object-cover ring-1 ring-[var(--aj-gold)]/40" />
+            <img src={aljizanyLogo} alt="" className="h-10 w-10 rounded-full object-cover ring-1 ring-[var(--aj-gold)]/40" />
             <div>
               <p className="aj-brand font-bold">
                 <span className="aj-gold-text">AL</span>
