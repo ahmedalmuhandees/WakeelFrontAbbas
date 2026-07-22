@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import Turnstile from 'react-turnstile'; // خدمة Cloudflare Turnstile — معطّلة بتعليق
-import Lottie from 'lottie-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, User, Lock, AlertTriangle, RefreshCw } from 'lucide-react';
 import WifiLoaderComponent from '../components/WifiLoaderComponent';
 import { apiService, ApiService } from '../services/api';
 import { showSuccess } from '../utils/notifications';
-import isometricDataAnalysisAnimation from '../images/Isometric data analysis.json';
+
+const ALJIZANY_LOGO = `${process.env.PUBLIC_URL || ''}/aljizany-logo.jpeg`;
 
 // const TURNSTILE_SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY || '0x4AAAAAACh0LGLTfAOqhxi6';
 
@@ -219,7 +219,7 @@ const LoginPage: React.FC = () => {
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-2xl rounded-2xl border border-white/60 dark:border-gray-700/50 p-4 sm:p-6 lg:p-8">
             <div className="text-center mb-4 sm:mb-6">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                نظام الوكيل
+                ALJIzany
               </h2>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 تسجيل الدخول إلى حسابك
@@ -348,24 +348,72 @@ const LoginPage: React.FC = () => {
             </form>
 
             <div className="text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-4 sm:mt-6">
-              <p>جميع الحقوق محفوظة لنظام الوكيل 2026 ©</p>
+              <p>جميع الحقوق محفوظة لـ ALJIzany 2026 ©</p>
             </div>
           </div>
         </div>
 
-        {/* Animated System Visual Section */}
+        {/* Animated ALJIzany logo */}
         <div className="flex-1 flex flex-col items-center justify-center lg:pl-8 order-1 lg:order-2">
-          <div className="text-center bg-white/60 dark:bg-gray-800/40 rounded-2xl p-5 sm:p-6 border border-white/60 dark:border-gray-700/40 backdrop-blur-sm shadow-lg">
-            <div className="mx-auto mb-3 h-48 w-48 sm:h-56 sm:w-56 lg:h-72 lg:w-72">
-              <Lottie
-                animationData={isometricDataAnalysisAnimation}
-                loop
-                autoplay
-                className="h-full w-full"
-              />
+          <style>{`
+            @keyframes aj-login-float {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-12px); }
+            }
+            @keyframes aj-login-ring {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            @keyframes aj-login-pulse {
+              0%, 100% { opacity: 0.35; transform: scale(1); }
+              50% { opacity: 0.7; transform: scale(1.06); }
+            }
+            .aj-login-logo-wrap {
+              position: relative;
+              width: min(18rem, 70vw);
+              height: min(18rem, 70vw);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .aj-login-ring {
+              position: absolute;
+              inset: 0;
+              border-radius: 9999px;
+              border: 1px solid transparent;
+              border-top-color: #e8a317;
+              border-right-color: rgba(232, 163, 23, 0.25);
+              animation: aj-login-ring 8s linear infinite;
+            }
+            .aj-login-glow {
+              position: absolute;
+              inset: 12%;
+              border-radius: 9999px;
+              background: radial-gradient(circle, rgba(232,163,23,0.28), transparent 70%);
+              animation: aj-login-pulse 3.2s ease-in-out infinite;
+            }
+            .aj-login-logo {
+              position: relative;
+              z-index: 1;
+              width: 78%;
+              height: 78%;
+              border-radius: 9999px;
+              object-fit: cover;
+              animation: aj-login-float 4.5s ease-in-out infinite;
+              box-shadow: 0 0 0 1px rgba(232, 163, 23, 0.35);
+            }
+          `}</style>
+          <div className="text-center">
+            <div className="aj-login-logo-wrap mx-auto mb-4">
+              <div className="aj-login-glow" aria-hidden />
+              <div className="aj-login-ring" aria-hidden />
+              <img src={ALJIZANY_LOGO} alt="ALJIzany" className="aj-login-logo" />
             </div>
-            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">
-              منصة ذكية ومرنة لإدارة وكلائك ومشتركيك بسهولة
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-wide">
+              ALJIzany
+            </p>
+            <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-300 font-medium">
+              خدمات الإنترنت — بوابة الوكلاء
             </p>
           </div>
         </div>

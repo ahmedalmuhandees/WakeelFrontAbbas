@@ -1,181 +1,255 @@
-import React, { useState } from 'react';
-import { 
-  Users, 
-  Shield, 
-  BarChart3, 
-  Smartphone, 
-  Wifi, 
-  CreditCard, 
-  MessageCircle,
-  CheckCircle,
-  Star,
-  ArrowRight,
+import React from 'react';
+import {
+  Wifi,
+  Router,
   HeadphonesIcon,
-  Package,
+  MessageCircle,
+  Shield,
   Zap,
-  Download
+  MapPin,
+  LogIn,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import waklogo from '../images/waklogo.png';
 
+const LOGO_SRC = `${process.env.PUBLIC_URL || ''}/aljizany-logo.jpeg`;
 const WHATSAPP_URL = 'https://api.whatsapp.com/send?phone=9647740240101';
 
 const LandingPage: React.FC = () => {
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-
-  const handleRequestSystem = () => {
-    window.open(`${WHATSAPP_URL}&text=`, '_blank');
+  const handleContact = (text?: string) => {
+    const q = text ? `&text=${encodeURIComponent(text)}` : '&text=';
+    window.open(`${WHATSAPP_URL}${q}`, '_blank');
   };
 
-  const handleSubscribe = (packageName: string) => {
-    const text = encodeURIComponent(`مرحباً، أود الاشتراك في ${packageName}`);
-    window.open(`${WHATSAPP_URL}&text=${text}`, '_blank');
-  };
-
-  const features = [
-    {
-      icon: Users,
-      title: 'إدارة الوكلاء',
-      description: 'نظام شامل لإدارة الوكلاء مع تتبع حالة الاشتراكات والصلاحيات'
-    },
-    {
-      icon: Smartphone,
-      title: 'إدارة المشتركين',
-      description: 'إضافة وتحديث بيانات المشتركين مع تتبع حالة الاشتراكات'
-    },
+  const services = [
     {
       icon: Wifi,
-      title: 'إدارة الشبكات',
-      description: 'توليد أكواد WiFi و QR Codes للمشتركين تلقائياً'
+      title: 'إنترنت منزلي',
+      description: 'اتصال مستقر وسريع يناسب العائلة والعمل من المنزل على مدار الساعة.',
     },
     {
-      icon: CreditCard,
-      title: 'نظام الفواتير',
-      description: 'إنشاء وإدارة الفواتير مع تتبع المدفوعات والديون'
+      icon: Router,
+      title: 'حلول الشركات',
+      description: 'شبكات موثوقة للمكاتب والمشاريع مع أولوية في الدعم والصيانة.',
     },
     {
-      icon: BarChart3,
-      title: 'التقارير والإحصائيات',
-      description: 'تقارير مفصلة عن المبيعات والأرباح والإحصائيات'
+      icon: HeadphonesIcon,
+      title: 'دعم فني دائم',
+      description: 'فريق جاهز لمتابعة الأعطال والتركيب والتفعيل بسرعة واستجابة عالية.',
     },
-    {
-      icon: Shield,
-      title: 'الأمان والحماية',
-      description: 'نظام أمان متقدم مع تشفير البيانات وحماية الخصوصية'
-    }
   ];
 
-  const benefits = [
-    'سهولة الاستخدام والواجهة العربية',
-    'إدارة شاملة لجميع العمليات',
-    'تقارير مفصلة وإحصائيات دقيقة',
-    'دعم فني متواصل',
-    'تحديثات مستمرة وميزات جديدة',
-    'أمان عالي وحماية البيانات'
-  ];
-
-  const stats = [
-    { number: '100+', label: 'وكيل نشط' },
-    { number: '1000+', label: 'مشترك' },
-    { number: '99%', label: 'رضا العملاء' },
-    { number: '24/7', label: 'دعم فني' }
-  ];
-
-  const packages = [
-    {
-      id: 'monthly',
-      name: 'الباقة الشهرية',
-      price: '10,000',
-      period: 'شهرياً',
-      features: ['دعم ٢٤/٧', 'مميزات شهرية مجاناً', 'مميزات أخرى']
-    },
-    {
-      id: 'yearly',
-      name: 'الباقة السنوية',
-      price: '80,000',
-      period: 'سنوياً',
-      features: ['دعم ٢٤/٧', 'مميزات شهرية مجاناً', 'مميزات أخرى']
-    }
+  const strengths = [
+    { icon: Zap, title: 'سرعة واستقرار', text: 'بنية شبكة مصممة لأداء ثابت حتى في ساعات الذروة.' },
+    { icon: MapPin, title: 'تغطية محلية', text: 'خدمة قريبة منك مع متابعة ميدانية عند الحاجة.' },
+    { icon: Shield, title: 'ثقة وشفافية', text: 'تعامل واضح وخدمة مشتركي نلتزم بها يومياً.' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <img src={waklogo} alt="نظام الوكيل" className="h-10 w-10 mr-3" />
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                نظام الوكيل
-              </h1>
+    <div className="aljizany-landing min-h-screen text-[#E8E6E3] overflow-x-hidden">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap');
+
+        .aljizany-landing {
+          --aj-bg: #050505;
+          --aj-bg-elevated: #0c0c0c;
+          --aj-gold: #e8a317;
+          --aj-gold-deep: #c4780a;
+          --aj-gold-soft: rgba(232, 163, 23, 0.18);
+          --aj-silver: #b8b8b8;
+          --aj-muted: #8a8a8a;
+          --aj-line: rgba(232, 163, 23, 0.35);
+          font-family: 'Tajawal', 'Cairo', sans-serif;
+          background:
+            radial-gradient(ellipse 90% 55% at 50% -10%, rgba(232, 163, 23, 0.14), transparent 55%),
+            radial-gradient(ellipse 50% 40% at 100% 30%, rgba(196, 120, 10, 0.08), transparent 50%),
+            var(--aj-bg);
+          color: #e8e6e3;
+        }
+
+        .aljizany-landing .aj-brand {
+          font-family: 'Outfit', 'Tajawal', sans-serif;
+          letter-spacing: 0.04em;
+        }
+
+        .aljizany-landing .aj-gold-text {
+          background: linear-gradient(135deg, #f3c45a 0%, #e8a317 45%, #c4780a 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+
+        .aljizany-landing .aj-btn-gold {
+          background: linear-gradient(135deg, #f0b63a 0%, #e8a317 40%, #c4780a 100%);
+          color: #0a0a0a;
+          transition: transform 0.25s ease, filter 0.25s ease;
+        }
+        .aljizany-landing .aj-btn-gold:hover {
+          filter: brightness(1.08);
+          transform: translateY(-1px);
+        }
+
+        .aljizany-landing .aj-btn-ghost {
+          border: 1px solid var(--aj-line);
+          color: #f3c45a;
+          background: transparent;
+          transition: background 0.25s ease, border-color 0.25s ease;
+        }
+        .aljizany-landing .aj-btn-ghost:hover {
+          background: var(--aj-gold-soft);
+          border-color: var(--aj-gold);
+        }
+
+        @keyframes aj-rise {
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes aj-logo-in {
+          from { opacity: 0; transform: scale(0.92); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes aj-line-draw {
+          from { transform: scaleX(0); opacity: 0.2; }
+          to { transform: scaleX(1); opacity: 1; }
+        }
+        @keyframes aj-drift {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+
+        .aljizany-landing .aj-rise { animation: aj-rise 0.8s ease both; }
+        .aljizany-landing .aj-rise-delay-1 { animation-delay: 0.12s; }
+        .aljizany-landing .aj-rise-delay-2 { animation-delay: 0.24s; }
+        .aljizany-landing .aj-logo-anim {
+          animation: aj-logo-in 0.9s ease both, aj-drift 5.5s ease-in-out 1s infinite;
+        }
+        .aljizany-landing .aj-gold-rule {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--aj-gold), transparent);
+          transform-origin: center;
+          animation: aj-line-draw 1.1s ease 0.35s both;
+        }
+      `}</style>
+
+      <header className="relative z-20 border-b border-[var(--aj-line)]/40 bg-black/40 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <img
+              src={LOGO_SRC}
+              alt="ALJIzany"
+              className="h-11 w-11 rounded-full object-cover ring-1 ring-[var(--aj-gold)]/50 sm:h-12 sm:w-12"
+            />
+            <div>
+              <p className="aj-brand text-lg font-bold leading-none tracking-wide sm:text-xl">
+                <span className="aj-gold-text">AL</span>
+                <span className="text-white">JIzany</span>
+              </p>
+              <p className="mt-1 text-[11px] text-[var(--aj-muted)] sm:text-xs">خدمات الإنترنت</p>
             </div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <Link
-                to="/register-agent"
-                className="border border-primary-600 text-primary-700 dark:text-primary-400 dark:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-4 sm:px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
-                style={{ fontFamily: 'Cairo, sans-serif' }}
-              >
-                <span>تسجيل وكيل</span>
-              </Link>
-              <button
-                onClick={handleRequestSystem}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-4 sm:px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
-                style={{ fontFamily: 'Cairo, sans-serif' }}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>طلب النظام</span>
-              </button>
-            </div>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/login"
+              className="aj-btn-ghost inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold sm:px-4"
+            >
+              <LogIn className="h-4 w-4" />
+              <span className="hidden sm:inline">دخول النظام</span>
+              <span className="sm:hidden">دخول</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => handleContact('مرحباً، أود الاستفسار عن خدمات ALJIzany')}
+              className="aj-btn-gold inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold sm:px-4"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>تواصل</span>
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex justify-center mb-8">
-              <img src={waklogo} alt="نظام الوكيل" className="h-32 w-32" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              نظام الوكيل
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              نظام شامل ومتطور لإدارة الوكلاء والمشتركين مع أحدث التقنيات والأمان العالي
+      <section className="relative flex min-h-[calc(100dvh-4.5rem)] flex-col items-center justify-center px-4 pb-16 pt-10 text-center sm:px-6">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(232,163,23,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(232,163,23,0.35) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent)',
+          }}
+        />
+
+        <img
+          src={LOGO_SRC}
+          alt="شعار ALJIzany"
+          className="aj-logo-anim relative z-10 mb-8 h-44 w-44 rounded-full object-cover shadow-[0_0_0_1px_rgba(232,163,23,0.35)] sm:h-56 sm:w-56 md:h-64 md:w-64"
+        />
+
+        <h1 className="aj-brand aj-rise relative z-10 text-5xl font-extrabold tracking-wide sm:text-6xl md:text-7xl">
+          <span className="aj-gold-text">AL</span>
+          <span className="text-white">JIzany</span>
+        </h1>
+
+        <div className="aj-gold-rule relative z-10 mx-auto my-5 w-40 sm:w-56" />
+
+        <p className="aj-rise aj-rise-delay-1 relative z-10 max-w-xl text-base text-[var(--aj-silver)] sm:text-lg">
+          شركة خدمات إنترنت تضع الاستقرار والسرعة ورضا المشترك في صميم عملها.
+        </p>
+
+        <div className="aj-rise aj-rise-delay-2 relative z-10 mt-9">
+          <Link
+            to="/login"
+            className="aj-btn-gold inline-flex min-w-[200px] items-center justify-center gap-2 rounded-md px-7 py-3.5 text-base font-bold"
+          >
+            <LogIn className="h-4 w-4" />
+            بوابة الوكلاء
+          </Link>
+        </div>
+      </section>
+
+      <section className="relative border-t border-[var(--aj-line)]/30 bg-[var(--aj-bg-elevated)] py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">خدماتنا</h2>
+            <p className="mt-3 text-[var(--aj-muted)]">
+              حلول إنترنت مصممة للمنزل والعمل — بدون تعقيد وبدون مفاجآت.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={handleRequestSystem}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center space-x-2"
-                style={{ fontFamily: 'Cairo, sans-serif' }}
-              >
-                <span>طلب النظام الآن</span>
-                <ArrowRight className="h-5 w-5" />
-              </button>
-              <Link
-                to="/system-pricing"
-                className="border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-                style={{ fontFamily: 'Cairo, sans-serif' }}
-              >
-                تعرف على الأسعار والباقات
-              </Link>
-            </div>
+          </div>
+
+          <div className="mt-14 grid gap-10 md:grid-cols-3">
+            {services.map((item) => (
+              <div key={item.title} className="text-center md:text-right">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-md border border-[var(--aj-line)] bg-black/40 text-[var(--aj-gold)]">
+                  <item.icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--aj-silver)]">{item.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-2" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                  {stat.number}
+      <section className="relative py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-extrabold text-white sm:text-4xl">لماذا ALJIzany؟</h2>
+            <p className="mt-3 text-[var(--aj-muted)]">
+              نركز على جودة الشبكة وخدمة المشترك قبل أي شيء آخر.
+            </p>
+          </div>
+
+          <div className="mt-14 space-y-0 divide-y divide-[var(--aj-line)]/25 border-y border-[var(--aj-line)]/25">
+            {strengths.map((item) => (
+              <div
+                key={item.title}
+                className="flex flex-col gap-3 py-7 sm:flex-row sm:items-start sm:gap-6"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--aj-gold-soft)] text-[var(--aj-gold)]">
+                  <item.icon className="h-5 w-5" />
                 </div>
-                <div className="text-gray-600 dark:text-gray-300" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                  {stat.label}
+                <div>
+                  <h3 className="text-lg font-bold text-white">{item.title}</h3>
+                  <p className="mt-1 text-[var(--aj-silver)]">{item.text}</p>
                 </div>
               </div>
             ))}
@@ -183,312 +257,39 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              مميزات النظام
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              نظام متكامل يوفر جميع الأدوات اللازمة لإدارة أعمالك بكفاءة عالية
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                <div className="flex items-center mb-4">
-                  <div className="bg-primary-100 dark:bg-primary-900/20 p-3 rounded-lg">
-                    <feature.icon className="h-6 w-6 text-primary-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mr-3" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                    {feature.title}
-                  </h3>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing / الباقات Section */}
-      <section className="py-20 bg-white dark:bg-gray-800" id="packages">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
-              <Package className="h-7 w-7 text-primary-600" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              اختر الباقة المناسبة لك
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              اشترك الآن واستمتع بجميع مميزات النظام مع دعم فني على مدار الساعة
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {packages.map((pkg) => {
-              const isSelected = selectedPackageId === pkg.id;
-              return (
-                <div
-                  key={pkg.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedPackageId((prev) => (prev === pkg.id ? null : pkg.id))}
-                  onKeyDown={(e) => e.key === 'Enter' && setSelectedPackageId((prev) => (prev === pkg.id ? null : pkg.id))}
-                  className={`relative rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer ${
-                    isSelected
-                      ? 'ring-2 ring-primary-500 bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/20 dark:to-gray-800'
-                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  {isSelected && pkg.id === 'yearly' && (
-                    <div className="absolute top-0 left-0 right-0 bg-primary-600 text-white text-center py-1.5 text-sm font-semibold" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                      الأوفر
-                    </div>
-                  )}
-                  <div className={`p-8 ${isSelected && pkg.id === 'yearly' ? 'pt-12' : ''}`}>
-                    <div className="flex items-center mb-6">
-                      <div className={`p-3 rounded-xl ${isSelected ? 'bg-primary-500 text-white' : 'bg-primary-100 dark:bg-primary-900/20 text-primary-600'}`}>
-                        <Zap className="h-6 w-6" />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mr-3" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                        {pkg.name}
-                      </h3>
-                    </div>
-                    <div className="mb-6">
-                      <span className="text-3xl font-bold text-primary-600" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                        {pkg.price}
-                      </span>
-                      <span className="text-gray-600 dark:text-gray-400 mr-1" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                        د.ع
-                      </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400 mr-1" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                        {' '}{pkg.period}
-                      </span>
-                    </div>
-                    <ul className="space-y-3 mb-8">
-                      {pkg.features.map((feature, i) => (
-                        <li key={i} className="flex items-center text-gray-700 dark:text-gray-300" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                          <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSubscribe(pkg.name); }}
-                      className={`w-full py-3.5 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center space-x-2 ${
-                        isSelected
-                          ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-primary-600 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
-                      style={{ fontFamily: 'Cairo, sans-serif' }}
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      <span>اشتراك</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-20 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                لماذا تختار نظام الوكيل؟
-              </h2>
-              <div className="space-y-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-gray-300" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                      {benefit}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-primary-500 to-primary-600 p-8 rounded-lg text-white">
-              <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                احصل على النظام الآن
-              </h3>
-              <p className="mb-6" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                تواصل معنا عبر WhatsApp للحصول على النظام وبدء إدارة أعمالك بكفاءة
-              </p>
-              <button
-                onClick={handleRequestSystem}
-                className="bg-white text-primary-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
-                style={{ fontFamily: 'Cairo, sans-serif' }}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>تواصل معنا</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              آراء عملائنا
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300" style={{ fontFamily: 'Cairo, sans-serif' }}>
-              اكتشف ما يقوله عملاؤنا عن نظام الوكيل
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                  "نظام الوكيل ساعدني في إدارة أعمالي بكفاءة عالية. الواجهة سهلة الاستخدام والتقارير مفصلة جداً."
-                </p>
-                <div className="flex items-center">
-                  <div className="bg-primary-100 dark:bg-primary-900/20 rounded-full p-2 mr-3">
-                    <Users className="h-6 w-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                      عميل راضي
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                      وكيل نشط
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            ابدأ رحلتك مع نظام الوكيل اليوم
+      <section className="relative border-t border-[var(--aj-line)]/30 py-20">
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <h2 className="aj-brand text-3xl font-extrabold sm:text-4xl">
+            <span className="aj-gold-text">تواصل مع</span>{' '}
+            <span className="text-white">ALJIzany</span>
           </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            انضم إلى مئات الوكلاء الذين يثقون في نظام الوكيل لإدارة أعمالهم
+          <p className="mx-auto mt-4 max-w-lg text-[var(--aj-silver)]">
+            للاستفسار عن الاشتراك أو الدعم الفني — راسلنا مباشرة عبر واتساب.
           </p>
           <button
-            onClick={handleRequestSystem}
-            className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center space-x-2 mx-auto"
-            style={{ fontFamily: 'Cairo, sans-serif' }}
+            type="button"
+            onClick={() => handleContact('مرحباً، أحتاج مساعدة من فريق ALJIzany')}
+            className="aj-btn-gold mt-8 inline-flex items-center gap-2 rounded-md px-8 py-3.5 text-base font-bold"
           >
             <MessageCircle className="h-5 w-5" />
-            <span>طلب النظام الآن</span>
+            تواصل عبر واتساب
           </button>
         </div>
       </section>
 
-      {/* تثبيت التطبيق على الآيفون */}
-      <section className="py-16 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
-            <Smartphone className="h-7 w-7 text-primary-600" />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            ثبت التطبيق على الآيفون
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            حمّل ملف التثبيت ثم اتبع الخطوات لإضافة تطبيق نظام الوكيل إلى شاشتك الرئيسية
-          </p>
-          <a
-            href={`${process.env.PUBLIC_URL || ''}/wakeel.mobileconfig`}
-            download="wakeel.mobileconfig"
-            className="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors shadow-lg hover:shadow-xl"
-            style={{ fontFamily: 'Cairo, sans-serif' }}
-          >
-            <Download className="h-6 w-6" />
-            <span>تحميل ملف التثبيت للآيفون</span>
-          </a>
-          <p className="text-sm text-amber-600 dark:text-amber-400 mt-4 font-medium" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            ملاحظة: افتح هذه الصفحة من متصفح Safari على الآيفون حصراً ثم اضغط تحميل
-          </p>
-          <div className="mt-6 p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg text-right text-sm text-gray-700 dark:text-gray-300" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            <p className="font-semibold mb-2">بعد التحميل:</p>
-            <ol className="list-decimal list-inside space-y-1 text-right">
-              <li>اذهب إلى <strong>الإعدادات (Settings)</strong></li>
-              <li>اختر <strong>تم تنزيل ملف التعريف (Profile Downloaded)</strong></li>
-              <li>اضغط <strong>تثبيت (Install)</strong></li>
-              <li>سيظهر تطبيق نظام الوكيل على شاشتك الرئيسية</li>
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="border-t border-[var(--aj-line)]/30 bg-black py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <img src={LOGO_SRC} alt="" className="h-10 w-10 rounded-full object-cover ring-1 ring-[var(--aj-gold)]/40" />
             <div>
-              <div className="flex items-center mb-4">
-                <img src={waklogo} alt="نظام الوكيل" className="h-8 w-8 mr-2" />
-                <h3 className="text-lg font-bold" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                  نظام الوكيل
-                </h3>
-              </div>
-              <p className="text-gray-400" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                نظام شامل ومتطور لإدارة الوكلاء والمشتركين
+              <p className="aj-brand font-bold">
+                <span className="aj-gold-text">AL</span>
+                <span className="text-white">JIzany</span>
               </p>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                المميزات
-              </h4>
-              <ul className="space-y-2 text-gray-400" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                <li>إدارة الوكلاء</li>
-                <li>إدارة المشتركين</li>
-                <li>نظام الفواتير</li>
-                <li>التقارير والإحصائيات</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                الدعم
-              </h4>
-              <ul className="space-y-2 text-gray-400" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                <li>الدعم الفني</li>
-                <li>التدريب</li>
-                <li>التحديثات</li>
-                <li>الأسئلة الشائعة</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                التواصل
-              </h4>
-              <div className="space-y-2 text-gray-400" style={{ fontFamily: 'Cairo, sans-serif' }}>
-                <div className="flex items-center">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  <span>WhatsApp: 07740240101</span>
-                </div>
-                <div className="flex items-center">
-                  <HeadphonesIcon className="h-4 w-4 mr-2" />
-                  <span>دعم فني 24/7</span>
-                </div>
-              </div>
+              <p className="text-xs text-[var(--aj-muted)]">عباس الجيزاني — خدمات الإنترنت</p>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400" style={{ fontFamily: 'Cairo, sans-serif' }}>
-            <p>جميع الحقوق محفوظة لنظام الوكيل 2026 ©</p>
-          </div>
+          <p className="text-sm text-[var(--aj-muted)]">© {new Date().getFullYear()} ALJIzany. جميع الحقوق محفوظة.</p>
         </div>
       </footer>
     </div>
