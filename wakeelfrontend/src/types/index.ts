@@ -2110,7 +2110,7 @@ export interface Subscriber {
   /** اسم المنطقة/الرسيلر المرتبط بالمشترك (إن وُجد) */
   agentResellerName?: string | null;
   totalDebt?: number;
-  /** الكابينة (اختياري، حد أقصى 200 حرف) */
+  /** الموقع الجغرافي (اختياري، حد أقصى 200 حرف) */
   fat?: string | null;
   /** المنطقة (اختياري، حد أقصى 200 حرف) */
   zone?: string | null;
@@ -2136,7 +2136,7 @@ export interface SubscriberCreateRequest {
   activationDate: string;
   expirationDate: string;
   subscriptionType: SubscriptionType;
-  /** الكابينة (اختياري، حد أقصى 200 حرف) */
+  /** الموقع الجغرافي (اختياري، حد أقصى 200 حرف) */
   fat?: string;
   /** المنطقة (اختياري، حد أقصى 200 حرف) */
   zone?: string;
@@ -2992,7 +2992,7 @@ export interface PaginationParams {
   sortDescending?: boolean;
   /** المشتركون الذين سينتهي اشتراكهم خلال 0..N يوم (يشمل المنتهي، 0 يوم) */
   maxDaysUntilExpiry?: number;
-  /** فلترة بالمطابقة الجزئية على الكابينة (Fat) */
+  /** فلترة بالمطابقة الجزئية على الموقع الجغرافي (Fat) */
   fat?: string;
   /** فلترة بالمطابقة الجزئية على الزون */
   zone?: string;

@@ -55,7 +55,7 @@ const SUBSCRIBERS_TABLE_COLUMNS: { id: string; label: string }[] = [
   { id: 'subscriberRegion', label: 'منطقة المشترك' },
   { id: 'phoneNumber', label: 'رقم الهاتف' },
   { id: 'agentCompanyName', label: 'شركة الوكيل' },
-  { id: 'fat', label: 'الكابينة' },
+  { id: 'fat', label: 'الموقع الجغرافي' },
   { id: 'zone', label: 'المنطقة' },
   { id: 'noteType', label: 'نوع الملاحظة' },
   { id: 'note', label: 'الملاحظات' },
@@ -1752,16 +1752,28 @@ const SubscribersPage: React.FC = () => {
       settings = {};
     }
 
-    const printContent = buildActivationReceiptPrintHtml(
-      settings,
-      renewalLikeToActivationPrintPayload(receipt as Record<string, unknown>),
-      {
-        formatDate,
-        locale,
-        ...printBase,
-        fallbackOrganizerName: (user?.fullName || user?.username || '').trim() || undefined,
-      }
-    );
+    const sub = subscribers?.find((s) => s.id === receipt.subscriberId);
+    const profilePeriod =
+      profiles?.find(
+        (p) =>
+          p.id === receipt.newProfileId ||
+          p.id === receipt.profileId ||
+          p.name === receipt.newProfileName ||
+          (sub?.profileId != null && p.id === sub.profileId)
+      )?.renewalPeriod ?? undefined;
+    const payload = renewalLikeToActivationPrintPayload({
+      ...(receipt as Record<string, unknown>),
+      username: receipt.username ?? sub?.username,
+      userId: receipt.userId ?? receipt.username ?? sub?.username,
+      renewalPeriod: receipt.renewalPeriod ?? receipt.durationDays ?? profilePeriod,
+    });
+
+    const printContent = buildActivationReceiptPrintHtml(settings, payload, {
+      formatDate,
+      locale,
+      ...printBase,
+      fallbackOrganizerName: (user?.fullName || user?.username || '').trim() || undefined,
+    });
 
     printWindow.document.write(printContent);
     printWindow.document.close();
@@ -2608,7 +2620,7 @@ const SubscribersPage: React.FC = () => {
         {showAdvancedFilter && (
           <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              الحالة، الكابينة، المنطقة، نوع الملاحظة، ترتيب التاريخ، الأيام حتى الانتهاء، ونطاق تاريخ انتهاء الاشتراك.
+              الحالة، الموقع الجغرافي، المنطقة، نوع الملاحظة، ترتيب التاريخ، الأيام حتى الانتهاء، ونطاق تاريخ انتهاء الاشتراك.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <div>
@@ -2637,10 +2649,10 @@ const SubscribersPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">الكابينة</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">الموقع الجغرافي</label>
                 <input
                   type="text"
-                  placeholder="الكابينة"
+                  placeholder="الموقع الجغرافي"
                   maxLength={200}
                   value={fatFilter}
                   onChange={(e) => setFatFilter(e.target.value)}
@@ -2829,7 +2841,7 @@ const SubscribersPage: React.FC = () => {
                   شركة الوكيل
                 </th>
                 <th className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col('fat')}`}>
-                  الكابينة
+                  الموقع الجغرافي
                 </th>
                 <th className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col('zone')}`}>
                   المنطقة
@@ -3245,11 +3257,11 @@ const SubscribersPage: React.FC = () => {
                 )}
               </div>
 
-              {/* الكابينة والمنطقة */}
+              {/* الموقع الجغرافي والمنطقة */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    الكابينة
+                    الموقع الجغرافي
                   </label>
                   <input
                     type="text"
@@ -3258,7 +3270,7 @@ const SubscribersPage: React.FC = () => {
                     onChange={handleInputChange}
                     maxLength={200}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="الكابينة (اختياري)"
+                    placeholder="الموقع الجغرافي (اختياري)"
                   />
                 </div>
                 <div>
