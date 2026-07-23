@@ -1,5 +1,6 @@
 import React from 'react';
 import fiberxLogo from '../images/receipt-logos/fiberx.png';
+import fiberxArLogo from '../images/receipt-logos/fiberx-ar.png';
 import ministryLogo from '../images/receipt-logos/ministry.png';
 import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
 import otetisLogo from '../images/receipt-logos/otetis.png';
@@ -32,25 +33,6 @@ function formatIqd(n: number): string {
   return `${Number(n || 0).toLocaleString('en-US')} IQD`;
 }
 
-/** شعار X المركزي كـ SVG كامل (بدون قص) */
-export function FiberXMark({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 64 64"
-      width="48"
-      height="48"
-      aria-hidden
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M10 8 L32 30 L54 8 L58 12 L36 34 L58 56 L54 60 L32 38 L10 60 L6 56 L28 34 L6 12 Z"
-        fill="#1a5fb4"
-      />
-    </svg>
-  );
-}
-
 /**
  * سند قبض POS 80mm (302px) — مطابق لتصميم الطابعة الحرارية.
  * للطباعة عبر react-to-print أو تضمين HTML عبر buildReceipt80mmDocumentHtml.
@@ -78,20 +60,18 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
           <div className="r80-logos-top">
             <img src={fiberxLogo} alt="FiberX" className="r80-logo-fiberx" />
             <div className="r80-brand-center">
-              <FiberXMark className="r80-logo-x" />
-              <div className="r80-brand-ar">فايبر X</div>
-              <div className="r80-brand-sub">لخدمات الانترنت الضوئي</div>
+              <img src={fiberxArLogo} alt="فايبر X" className="r80-logo-x" />
               <div className="r80-title-ar">سند قبض</div>
               <div className="r80-title-en">Receipt voucher</div>
             </div>
-            <img src={ministryLogo} alt="وزارة الاتصالات" className="r80-logo-ministry" />
+            <img src={ministryLogo} alt="الشركة العامة للاتصالات والمعلوماتية" className="r80-logo-ministry" />
           </div>
           <div className="r80-logos-mid">
             <div className="r80-no">NO: {receiptNo || '—'}</div>
             <img src={iraqiyaLogo} alt="العراقية" className="r80-logo-iraqiya" />
           </div>
           <div className="r80-logos-bot">
-            <img src={otetisLogo} alt="OTETIS" className="r80-logo-otetis" />
+            <img src={otetisLogo} alt="EiTiS" className="r80-logo-otetis" />
           </div>
         </header>
 
@@ -172,9 +152,6 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
 
 export default Receipt80mm;
 
-/** SVG مركز Fiber X — للاستخدام في مستند الطباعة HTML */
-export const FIBER_X_MARK_SVG = `<svg class="r80-logo-x" viewBox="0 0 64 64" width="48" height="48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M10 8 L32 30 L54 8 L58 12 L36 34 L58 56 L54 60 L32 38 L10 60 L6 56 L28 34 L6 12 Z" fill="#1a5fb4"/></svg>`;
-
 /** CSS مشترك للعرض والطباعة — عرض 302px / 80mm */
 export const RECEIPT_80MM_CSS = `
 .receipt80mm-root {
@@ -217,6 +194,7 @@ export const RECEIPT_80MM_CSS = `
 .r80-logo-ministry,
 .r80-logo-iraqiya,
 .r80-logo-otetis,
+.r80-logo-x,
 .r80-support-icon {
   display: block;
   height: auto;
@@ -227,12 +205,12 @@ export const RECEIPT_80MM_CSS = `
   overflow: visible;
 }
 .r80-logo-fiberx {
-  width: 82px;
-  max-height: 34px;
+  width: 88px;
+  max-height: 36px;
 }
 .r80-logo-ministry {
-  width: 72px;
-  max-height: 72px;
+  width: 74px;
+  max-height: 74px;
 }
 .r80-brand-center {
   flex: 1 1 auto;
@@ -241,24 +219,9 @@ export const RECEIPT_80MM_CSS = `
   overflow: visible;
 }
 .r80-logo-x {
-  width: 48px;
-  height: 48px;
+  width: 92px;
+  max-height: 56px;
   margin: 0 auto 4px;
-  display: block;
-  overflow: visible;
-}
-.r80-brand-ar {
-  color: var(--r80-blue);
-  font-weight: 800;
-  font-size: 14px;
-  line-height: 1.25;
-}
-.r80-brand-sub {
-  color: var(--r80-blue);
-  font-weight: 700;
-  font-size: 8.5px;
-  line-height: 1.3;
-  margin-top: 2px;
 }
 .r80-title-ar {
   font-weight: 900;
@@ -290,8 +253,8 @@ export const RECEIPT_80MM_CSS = `
   min-width: 0;
 }
 .r80-logo-iraqiya {
-  width: 62px;
-  max-height: 70px;
+  width: 58px;
+  max-height: 78px;
 }
 .r80-logos-bot {
   display: flex;
@@ -299,8 +262,8 @@ export const RECEIPT_80MM_CSS = `
   margin-top: 6px;
 }
 .r80-logo-otetis {
-  width: 78px;
-  max-height: 42px;
+  width: 120px;
+  max-height: 48px;
 }
 
 .r80-userid {

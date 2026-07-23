@@ -1,14 +1,10 @@
 import fiberxLogo from '../images/receipt-logos/fiberx.png';
+import fiberxArLogo from '../images/receipt-logos/fiberx-ar.png';
 import ministryLogo from '../images/receipt-logos/ministry.png';
 import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
 import otetisLogo from '../images/receipt-logos/otetis.png';
 import supportIcon from '../images/receipt-logos/support-icon.png';
-import {
-  FIBER_X_MARK_SVG,
-  RECEIPT_80MM_CSS,
-  type Receipt80mmPackage,
-  type Receipt80mmProps,
-} from '../components/Receipt80mm';
+import { RECEIPT_80MM_CSS, type Receipt80mmPackage, type Receipt80mmProps } from '../components/Receipt80mm';
 
 function escapeHtml(s: string): string {
   return s
@@ -55,6 +51,7 @@ export function buildReceipt80mmDocumentHtml(
   const origin = opts.appOrigin || '';
   const logos = {
     fiberx: absAsset(origin, fiberxLogo),
+    fiberxAr: absAsset(origin, fiberxArLogo),
     ministry: absAsset(origin, ministryLogo),
     iraqiya: absAsset(origin, iraqiyaLogo),
     otetis: absAsset(origin, otetisLogo),
@@ -105,20 +102,18 @@ export function buildReceipt80mmDocumentHtml(
         <div class="r80-logos-top">
           <img src="${escapeHtml(logos.fiberx)}" alt="FiberX" class="r80-logo-fiberx" />
           <div class="r80-brand-center">
-            ${FIBER_X_MARK_SVG}
-            <div class="r80-brand-ar">فايبر X</div>
-            <div class="r80-brand-sub">لخدمات الانترنت الضوئي</div>
+            <img src="${escapeHtml(logos.fiberxAr)}" alt="فايبر X" class="r80-logo-x" />
             <div class="r80-title-ar">سند قبض</div>
             <div class="r80-title-en">Receipt voucher</div>
           </div>
-          <img src="${escapeHtml(logos.ministry)}" alt="وزارة الاتصالات" class="r80-logo-ministry" />
+          <img src="${escapeHtml(logos.ministry)}" alt="الشركة العامة للاتصالات والمعلوماتية" class="r80-logo-ministry" />
         </div>
         <div class="r80-logos-mid">
           <div class="r80-no">NO: ${escapeHtml(receiptNo || '—')}</div>
           <img src="${escapeHtml(logos.iraqiya)}" alt="العراقية" class="r80-logo-iraqiya" />
         </div>
         <div class="r80-logos-bot">
-          <img src="${escapeHtml(logos.otetis)}" alt="OTETIS" class="r80-logo-otetis" />
+          <img src="${escapeHtml(logos.otetis)}" alt="EiTiS" class="r80-logo-otetis" />
         </div>
       </header>
 
