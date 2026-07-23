@@ -2,9 +2,13 @@ import fiberxLogo from '../images/receipt-logos/fiberx.png';
 import ministryLogo from '../images/receipt-logos/ministry.png';
 import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
 import otetisLogo from '../images/receipt-logos/otetis.png';
-import centerXLogo from '../images/receipt-logos/center-x.png';
 import supportIcon from '../images/receipt-logos/support-icon.png';
-import { RECEIPT_80MM_CSS, type Receipt80mmPackage, type Receipt80mmProps } from '../components/Receipt80mm';
+import {
+  FIBER_X_MARK_SVG,
+  RECEIPT_80MM_CSS,
+  type Receipt80mmPackage,
+  type Receipt80mmProps,
+} from '../components/Receipt80mm';
 
 function escapeHtml(s: string): string {
   return s
@@ -54,7 +58,6 @@ export function buildReceipt80mmDocumentHtml(
     ministry: absAsset(origin, ministryLogo),
     iraqiya: absAsset(origin, iraqiyaLogo),
     otetis: absAsset(origin, otetisLogo),
-    centerX: absAsset(origin, centerXLogo),
     support: absAsset(origin, supportIcon),
   };
 
@@ -102,7 +105,7 @@ export function buildReceipt80mmDocumentHtml(
         <div class="r80-logos-top">
           <img src="${escapeHtml(logos.fiberx)}" alt="FiberX" class="r80-logo-fiberx" />
           <div class="r80-brand-center">
-            <img src="${escapeHtml(logos.centerX)}" alt="" class="r80-logo-x" />
+            ${FIBER_X_MARK_SVG}
             <div class="r80-brand-ar">فايبر X</div>
             <div class="r80-brand-sub">لخدمات الانترنت الضوئي</div>
             <div class="r80-title-ar">سند قبض</div>

@@ -3,7 +3,6 @@ import fiberxLogo from '../images/receipt-logos/fiberx.png';
 import ministryLogo from '../images/receipt-logos/ministry.png';
 import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
 import otetisLogo from '../images/receipt-logos/otetis.png';
-import centerXLogo from '../images/receipt-logos/center-x.png';
 import supportIcon from '../images/receipt-logos/support-icon.png';
 
 export type Receipt80mmPackage = {
@@ -33,6 +32,25 @@ function formatIqd(n: number): string {
   return `${Number(n || 0).toLocaleString('en-US')} IQD`;
 }
 
+/** شعار X المركزي كـ SVG كامل (بدون قص) */
+export function FiberXMark({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 64 64"
+      width="48"
+      height="48"
+      aria-hidden
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10 8 L32 30 L54 8 L58 12 L36 34 L58 56 L54 60 L32 38 L10 60 L6 56 L28 34 L6 12 Z"
+        fill="#1a5fb4"
+      />
+    </svg>
+  );
+}
+
 /**
  * سند قبض POS 80mm (302px) — مطابق لتصميم الطابعة الحرارية.
  * للطباعة عبر react-to-print أو تضمين HTML عبر buildReceipt80mmDocumentHtml.
@@ -49,9 +67,7 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
   phoneLines = DEFAULT_PHONES,
   className = '',
 }) => {
-  const pkgs = packages?.length
-    ? packages
-    : [{ name: '—', price: amount }];
+  const pkgs = packages?.length ? packages : [{ name: '—', price: amount }];
   const total = pkgs.reduce((s, p) => s + (Number(p.price) || 0), 0);
 
   return (
@@ -62,7 +78,7 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
           <div className="r80-logos-top">
             <img src={fiberxLogo} alt="FiberX" className="r80-logo-fiberx" />
             <div className="r80-brand-center">
-              <img src={centerXLogo} alt="" className="r80-logo-x" />
+              <FiberXMark className="r80-logo-x" />
               <div className="r80-brand-ar">فايبر X</div>
               <div className="r80-brand-sub">لخدمات الانترنت الضوئي</div>
               <div className="r80-title-ar">سند قبض</div>
@@ -156,6 +172,9 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
 
 export default Receipt80mm;
 
+/** SVG مركز Fiber X — للاستخدام في مستند الطباعة HTML */
+export const FIBER_X_MARK_SVG = `<svg class="r80-logo-x" viewBox="0 0 64 64" width="48" height="48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M10 8 L32 30 L54 8 L58 12 L36 34 L58 56 L54 60 L32 38 L10 60 L6 56 L28 34 L6 12 Z" fill="#1a5fb4"/></svg>`;
+
 /** CSS مشترك للعرض والطباعة — عرض 302px / 80mm */
 export const RECEIPT_80MM_CSS = `
 .receipt80mm-root {
@@ -180,32 +199,109 @@ export const RECEIPT_80MM_CSS = `
   background: #fff;
   padding: 10px 8px 12px;
   box-shadow: 0 0 8px rgba(0,0,0,.15);
+  overflow: visible;
 }
-.r80-header { text-align: center; margin-bottom: 6px; }
+.r80-header {
+  text-align: center;
+  margin-bottom: 6px;
+  overflow: visible;
+}
 .r80-logos-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 4px;
+  gap: 6px;
+  overflow: visible;
 }
-.r80-logo-fiberx { width: 72px; height: auto; object-fit: contain; }
-.r80-logo-ministry { width: 64px; height: auto; object-fit: contain; }
-.r80-brand-center { flex: 1; min-width: 0; padding-top: 2px; }
-.r80-logo-x { width: 42px; height: auto; margin: 0 auto 2px; display: block; object-fit: contain; }
-.r80-brand-ar { color: var(--r80-blue); font-weight: 800; font-size: 15px; line-height: 1.2; }
-.r80-brand-sub { color: var(--r80-blue); font-weight: 700; font-size: 9px; line-height: 1.25; margin-top: 1px; }
-.r80-title-ar { font-weight: 900; font-size: 18px; margin-top: 4px; line-height: 1.15; }
-.r80-title-en { font-weight: 700; font-size: 10px; letter-spacing: 0.02em; margin-top: 1px; }
+.r80-logo-fiberx,
+.r80-logo-ministry,
+.r80-logo-iraqiya,
+.r80-logo-otetis,
+.r80-support-icon {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.r80-logo-fiberx {
+  width: 82px;
+  max-height: 34px;
+}
+.r80-logo-ministry {
+  width: 72px;
+  max-height: 72px;
+}
+.r80-brand-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 2px;
+  overflow: visible;
+}
+.r80-logo-x {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 4px;
+  display: block;
+  overflow: visible;
+}
+.r80-brand-ar {
+  color: var(--r80-blue);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.25;
+}
+.r80-brand-sub {
+  color: var(--r80-blue);
+  font-weight: 700;
+  font-size: 8.5px;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+.r80-title-ar {
+  font-weight: 900;
+  font-size: 17px;
+  margin-top: 6px;
+  line-height: 1.2;
+  color: #000;
+}
+.r80-title-en {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
 .r80-logos-mid {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
+  margin-top: 8px;
+  gap: 8px;
 }
-.r80-no { font-weight: 800; font-size: 12px; color: #222; }
-.r80-logo-iraqiya { width: 58px; height: auto; object-fit: contain; }
-.r80-logos-bot { display: flex; justify-content: flex-start; margin-top: 2px; }
-.r80-logo-otetis { width: 70px; height: auto; object-fit: contain; }
+.r80-no {
+  font-weight: 800;
+  font-size: 11px;
+  color: #222;
+  text-align: right;
+  word-break: break-all;
+  flex: 1;
+  min-width: 0;
+}
+.r80-logo-iraqiya {
+  width: 62px;
+  max-height: 70px;
+}
+.r80-logos-bot {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 6px;
+}
+.r80-logo-otetis {
+  width: 78px;
+  max-height: 42px;
+}
 
 .r80-userid {
   display: flex;
@@ -298,7 +394,7 @@ export const RECEIPT_80MM_CSS = `
   font-weight: 700;
 }
 .r80-support { display: flex; align-items: center; gap: 4px; direction: ltr; }
-.r80-support-icon { width: 22px; height: 22px; object-fit: contain; }
+.r80-support-icon { width: 22px; height: 22px; }
 .r80-phones { text-align: right; }
 .r80-phones-label { display: block; margin-bottom: 2px; }
 .r80-phones-list { direction: ltr; text-align: right; line-height: 1.35; }
@@ -329,6 +425,7 @@ export const RECEIPT_80MM_CSS = `
     max-width: 80mm !important;
     margin: 0 auto;
     page-break-inside: avoid;
+    overflow: visible !important;
   }
 }
 `;
