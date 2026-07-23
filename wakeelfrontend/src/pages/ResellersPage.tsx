@@ -52,7 +52,10 @@ const ResellersPage: React.FC = () => {
     staleTime: 60_000,
   });
 
-  const items: AgentResellerCredentialsDto[] = data?.data ?? [];
+  const items = useMemo<AgentResellerCredentialsDto[]>(
+    () => data?.data ?? [],
+    [data?.data]
+  );
 
   const sasDevSyncOptions = useMemo(() => {
     const source = allCredsForSelect?.data ?? items;
