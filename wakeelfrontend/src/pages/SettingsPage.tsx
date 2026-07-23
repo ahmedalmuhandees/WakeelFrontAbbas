@@ -941,21 +941,50 @@ function SettingsPage() {
     },
   });
 
-  /** مزامنة مطور: contract_id → Fat لمشتركي رسيلر SAS */
+  /** مودال مزامنة مطور العامة: اعتماديات يدوية + اختيار رسيلر لحفظ Fat */
+  const [devSyncModalOpen, setDevSyncModalOpen] = useState(false);
+  const [devSyncBaseUrl, setDevSyncBaseUrl] = useState('');
+  const [devSyncUsername, setDevSyncUsername] = useState('');
+  const [devSyncPassword, setDevSyncPassword] = useState('');
+  const [devSyncResellerId, setDevSyncResellerId] = useState('');
+  const [devSyncShowPassword, setDevSyncShowPassword] = useState(false);
+
+  const sasDevSyncResellers = useMemo(
+    () =>
+      myResellers.filter(
+        (r) => r.serviceType === ServiceType.Sas || r.serviceType === ServiceType.Earthlink
+      ),
+    [myResellers]
+  );
+
+  const openDevSyncModal = () => {
+    setDevSyncBaseUrl('');
+    setDevSyncUsername('');
+    setDevSyncPassword('');
+    setDevSyncResellerId(sasDevSyncResellers[0]?.id ?? '');
+    setDevSyncShowPassword(false);
+    setDevSyncModalOpen(true);
+  };
+
+  /** مزامنة مطور: contract_id → Fat لمشتركي رسيلر SAS (اعتماديات يدوية + resellerId) */
   const syncContractIdToFatMutation = useMutation({
-    mutationFn: (reseller: AgentReseller) => {
-      const baseUrl = (reseller.baseUrl || '').trim();
-      const username = (reseller.username || '').trim();
-      const password = (reseller.password || '').trim();
-      if (!reseller.id?.trim()) {
-        return Promise.reject(new Error('معرّف الرسيلر مطلوب.'));
-      }
-      if (!baseUrl || !username || !password) {
+    mutationFn: (payload: {
+      resellerId: string;
+      baseUrl: string;
+      username: string;
+      password: string;
+    }) => {
+      const resellerId = payload.resellerId.trim();
+      const baseUrl = payload.baseUrl.trim();
+      const username = payload.username.trim();
+      const password = payload.password;
+      if (!resellerId) return Promise.reject(new Error('اختر الرسيلر الموجود في النظام.'));
+      if (!baseUrl || !username || !password.trim()) {
         return Promise.reject(
           new Error('يلزم رابط الرسيلر واسم المستخدم وكلمة المرور لمزامنة مطور.')
         );
       }
-      return apiService.syncContractIdToFat(reseller.id, { baseUrl, username, password });
+      return apiService.syncContractIdToFat(resellerId, { baseUrl, username, password });
     },
     onSuccess: (data) => {
       if (data.error) {
@@ -963,13 +992,16 @@ function SettingsPage() {
         return;
       }
       const updated = data.updated ?? data.synced;
+      const totalSas = data.totalFromSas ?? data.total;
       const parts = [
         data.message?.trim() || 'اكتملت مزامنة contract_id إلى Fat',
         updated != null ? `تم تحديث ${updated}` : null,
+        data.skippedNoMatch != null ? `بدون مطابقة ${data.skippedNoMatch}` : null,
         data.matched != null ? `مطابقة ${data.matched}` : null,
-        data.total != null ? `إجمالي SAS ${data.total}` : null,
+        totalSas != null ? `إجمالي SAS ${totalSas}` : null,
       ].filter(Boolean);
       showSuccess('مزامنة مطور', parts.join(' — '));
+      setDevSyncModalOpen(false);
       void queryClient.invalidateQueries({ queryKey: ['subscribers'] });
     },
     onError: (err: unknown) => {
@@ -2152,29 +2184,52 @@ function SettingsPage() {
           {/* الرسيلرز والروابط — إدارة روابط SAS/FTTH/Earthlink */}
           {isAgentOrSubAgent && activeSection === 'resellers' && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
                 <div className="flex items-center space-x-3">
                   <Store className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">المناطق (الرسيلرز) والروابط</h2>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setResellerFormId(null);
-                    setShowResellerForm(true);
-                    setResellerName('');
-                    setResellerServiceType(ServiceType.Sas);
-                    setResellerBaseUrl('');
-                    setResellerUsername('');
-                    setResellerTelegramChatId('');
-                    setResellerPassword('');
-                    setResellerDisplayOrder(myResellers.length);
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm"
-                >
-                  <Plus className="h-4 w-4" />
-                  إضافة منطقة
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={openDevSyncModal}
+                    disabled={
+                      syncContractIdToFatMutation.isPending ||
+                      exportSasSubscribersMutation.isPending ||
+                      exportFtthSubscribersMutation.isPending ||
+                      fiProviderResellerSyncMutation.isPending ||
+                      pullLoadingModalOpen ||
+                      pullImportModalOpen
+                    }
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-sm disabled:opacity-50"
+                    title="مزامنة مطور عامة: إدخال اعتماديات SAS واختيار رسيلر لتحديث Fat من contract_id"
+                  >
+                    {syncContractIdToFatMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Code2 className="h-4 w-4" />
+                    )}
+                    مزامنة مطور
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setResellerFormId(null);
+                      setShowResellerForm(true);
+                      setResellerName('');
+                      setResellerServiceType(ServiceType.Sas);
+                      setResellerBaseUrl('');
+                      setResellerUsername('');
+                      setResellerTelegramChatId('');
+                      setResellerPassword('');
+                      setResellerDisplayOrder(myResellers.length);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm"
+                  >
+                    <Plus className="h-4 w-4" />
+                    إضافة منطقة
+                  </button>
+                </div>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 أضف منطقة جديدة ببيانات: اسم المنطقة، رابط الرسيلر، اسم مستخدم الرسيلر، كلمة سر الرسيلر، ونوع الخدمة. وباقي أمور سحب المشتركين تبقى كما هي.
@@ -2215,39 +2270,6 @@ function SettingsPage() {
                                 <CloudDownload className="h-3 w-3" />
                               )}
                               <span>سحب / تنزيل (SAS)</span>
-                            </button>
-                          )}
-                          {r.serviceType === ServiceType.Sas && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (
-                                  !window.confirm(
-                                    'مزامنة مطور: سحب مستخدمي SAS (بما فيهم غير المفعّلين) وتحديث Fat من contract_id لمشتركي هذا الرسيلر؟'
-                                  )
-                                ) {
-                                  return;
-                                }
-                                syncContractIdToFatMutation.mutate(r);
-                              }}
-                              disabled={
-                                syncContractIdToFatMutation.isPending ||
-                                exportSasSubscribersMutation.isPending ||
-                                exportFtthSubscribersMutation.isPending ||
-                                fiProviderResellerSyncMutation.isPending ||
-                                pullLoadingModalOpen ||
-                                pullImportModalOpen
-                              }
-                              className="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-800 text-white rounded-md disabled:opacity-50 flex items-center gap-1"
-                              title="مزامنة مطور: تحديث Fat من contract_id عبر مطابقة ExternalId/Username"
-                            >
-                              {syncContractIdToFatMutation.isPending &&
-                              syncContractIdToFatMutation.variables?.id === r.id ? (
-                                <RefreshCw className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Code2 className="h-3 w-3" />
-                              )}
-                              <span>مزامنة مطور</span>
                             </button>
                           )}
                           {r.serviceType === ServiceType.Ftth && (
@@ -3639,6 +3661,129 @@ function SettingsPage() {
     </div>
 
     {/* سحب مشتركين (FTTH أو SAS): جاري التحميل — ألوان النظام */}
+    {/* مودال مزامنة مطور العامة — اعتماديات يدوية + اختيار رسيلر */}
+    {devSyncModalOpen && (
+      <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl">
+          <div className="flex items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-700 px-5 py-4">
+            <div className="flex items-center gap-2">
+              <Code2 className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">مزامنة مطور</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => !syncContractIdToFatMutation.isPending && setDevSyncModalOpen(false)}
+              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label="إغلاق"
+              disabled={syncContractIdToFatMutation.isPending}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="p-5 space-y-4 text-right">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              أدخل اعتماديات لوحة SAS، ثم اختر الرسيلر في النظام لمطابقة المشتركين وتحديث Fat من contract_id (بما فيهم غير
+              المفعّلين).
+            </p>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">رابط الرسيلر *</label>
+              <input
+                type="url"
+                value={devSyncBaseUrl}
+                onChange={(e) => setDevSyncBaseUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-white"
+                disabled={syncContractIdToFatMutation.isPending}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">اسم المستخدم *</label>
+              <input
+                type="text"
+                value={devSyncUsername}
+                onChange={(e) => setDevSyncUsername(e.target.value)}
+                autoComplete="username"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-white"
+                disabled={syncContractIdToFatMutation.isPending}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">كلمة المرور *</label>
+              <div className="relative">
+                <input
+                  type={devSyncShowPassword ? 'text' : 'password'}
+                  value={devSyncPassword}
+                  onChange={(e) => setDevSyncPassword(e.target.value)}
+                  autoComplete="current-password"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 pe-10 text-sm text-gray-900 dark:text-white"
+                  disabled={syncContractIdToFatMutation.isPending}
+                />
+                <button
+                  type="button"
+                  onClick={() => setDevSyncShowPassword((v) => !v)}
+                  className="absolute inset-y-0 left-2 flex items-center text-gray-500"
+                  tabIndex={-1}
+                >
+                  {devSyncShowPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                الرسيلر في النظام (لحفظ Fat) *
+              </label>
+              <select
+                value={devSyncResellerId}
+                onChange={(e) => setDevSyncResellerId(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-white"
+                disabled={syncContractIdToFatMutation.isPending}
+              >
+                <option value="">— اختر الرسيلر —</option>
+                {sasDevSyncResellers.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} ({formatServiceTypeLabelAr(r.serviceType)})
+                  </option>
+                ))}
+              </select>
+              {sasDevSyncResellers.length === 0 && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">لا يوجد رسيلر من نوع SAS/Earthlink.</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-5 py-4">
+            <button
+              type="button"
+              onClick={() => setDevSyncModalOpen(false)}
+              disabled={syncContractIdToFatMutation.isPending}
+              className="px-4 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 disabled:opacity-50"
+            >
+              إلغاء
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                syncContractIdToFatMutation.mutate({
+                  resellerId: devSyncResellerId,
+                  baseUrl: devSyncBaseUrl,
+                  username: devSyncUsername,
+                  password: devSyncPassword,
+                })
+              }
+              disabled={syncContractIdToFatMutation.isPending || sasDevSyncResellers.length === 0}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-800 text-white disabled:opacity-50"
+            >
+              {syncContractIdToFatMutation.isPending ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Code2 className="h-4 w-4" />
+              )}
+              بدء المزامنة
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     {pullLoadingModalOpen && (
       <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl">

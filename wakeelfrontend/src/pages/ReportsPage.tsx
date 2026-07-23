@@ -125,18 +125,18 @@ function ledgerPaymentSourceLabel(
   row: AccountLedgerEntry,
   catalog?: SubscriberNoteTypeOption[] | null
 ): string {
-  const raw = (row.subscriberNoteTypeLabel ?? '').toString().trim();
-  if (raw) return raw;
   const v = row.subscriberNoteType;
   if (v != null && Number.isFinite(Number(v))) {
     const num = Number(v);
+    const fromEnum = subscriberNoteTypeLabelAr(num);
+    if (fromEnum) return fromEnum;
     if (catalog && catalog.length > 0) {
       const hit = catalog.find((x) => x.value === num);
       if (hit) return hit.label;
     }
-    const fromEnum = subscriberNoteTypeLabelAr(num);
-    if (fromEnum) return fromEnum;
   }
+  const raw = (row.subscriberNoteTypeLabel ?? '').toString().trim();
+  if (raw) return raw;
   return '—';
 }
 

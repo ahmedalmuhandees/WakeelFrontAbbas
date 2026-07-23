@@ -198,13 +198,16 @@ import {
 } from '../types';
 import { getNumberLocale } from '../utils/localeDigits';
 import { createCashbackReportXlsxBlob } from '../utils/excelExport';
-import { subscriberNoteTypeLabelAr } from '../utils/subscriberNoteTypeLabels';
+import {
+  RECEIVED_AMOUNT_DESTINATION_OPTIONS,
+  subscriberNoteTypeLabelAr,
+} from '../utils/subscriberNoteTypeLabels';
 
-/** قائمة كاملة للاستخدام عندما لا يعيد الـ API كتالوجاً أو يكون فارغاً بعد التطبيع */
+/** قائمة «جهة المبلغ الواصل» عندما لا يعيد الـ API كتالوجاً أو يكون فارغاً بعد التطبيع */
 export function defaultSubscriberNoteTypeOptions(): SubscriberNoteTypeOption[] {
-  return [1, 2, 3, 4, 5, 6].map((v) => ({
-    value: v,
-    label: subscriberNoteTypeLabelAr(v) ?? String(v),
+  return RECEIVED_AMOUNT_DESTINATION_OPTIONS.map((o) => ({
+    value: o.value,
+    label: o.label,
   }));
 }
 
@@ -265,10 +268,8 @@ export function parseSubscriberNoteTypesCatalog(raw: unknown): SubscriberNoteTyp
     const vn = Number(value);
     let ls = label != null ? String(label).trim() : '';
     if (!Number.isFinite(vn)) continue;
-    if (!ls) {
-      const fb = subscriberNoteTypeLabelAr(vn);
-      if (fb) ls = fb;
-    }
+    const frontendLabel = subscriberNoteTypeLabelAr(vn);
+    if (frontendLabel) ls = frontendLabel;
     if (!ls) continue;
     if (seen.has(vn)) continue;
     seen.add(vn);
@@ -5038,12 +5039,15 @@ class ApiService {
 
   /**
    * مزامنة مطور: سحب مستخدمي SAS (بما فيهم غير المفعّلين) ومطابقة مشتركي الرسيلر ثم تحديث Fat من contract_id.
-   * POST /providers/sas/sync-contract-id-to-fat?resellerId=...
+   * POST /providers/sas/sync-contract-id-to-fat?resellerId=...&agentId=...
    */
   async syncContractIdToFat(
     resellerId: string,
     body: SyncContractIdToFatRequest
   ): Promise<SyncContractIdToFatResponse> {
+    const params: Record<string, string> = { resellerId: resellerId.trim() };
+    const agentId = body.agentId?.trim();
+    if (agentId) params.agentId = agentId;
     const response: AxiosResponse<SyncContractIdToFatResponse> = await this.api.post(
       '/providers/sas/sync-contract-id-to-fat',
       {
@@ -5052,7 +5056,7 @@ class ApiService {
         password: body.password,
       },
       {
-        params: { resellerId: resellerId.trim() },
+        params,
         timeout: ApiService.SAS_SYNC_TIMEOUT_MS,
       }
     );

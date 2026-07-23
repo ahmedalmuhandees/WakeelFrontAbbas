@@ -18,7 +18,7 @@ import {
 } from '../utils/activationReceiptPrintHtml';
 import { getBaghdadDefaultExportRangeLast30Days, getBaghdadRangeBoundsIso, getBaghdadTodayYmd } from '../utils/iraqCalendar';
 import { styleAccountsExportExcelBlob } from '../utils/excelExport';
-import { SUBSCRIBER_NOTE_TYPE_LABEL_AR } from '../utils/subscriberNoteTypeLabels';
+import { SUBSCRIBER_NOTE_TYPE_LABEL_AR, subscriberNoteTypeLabelAr } from '../utils/subscriberNoteTypeLabels';
 import EditSubscriberModal from '../components/EditSubscriberModal';
 import AddNoteModal from '../components/AddNoteModal';
 import Pagination from '../components/Pagination';
@@ -458,7 +458,12 @@ const SubscribersPage: React.FC = () => {
   );
   const renewalSubscriberNoteTypes = React.useMemo(() => {
     const fromApi = renewalSubscriberContext?.subscriberNoteTypes;
-    if (fromApi && fromApi.length > 0) return fromApi;
+    if (fromApi && fromApi.length > 0) {
+      return fromApi.map((opt) => ({
+        value: opt.value,
+        label: subscriberNoteTypeLabelAr(opt.value) ?? opt.label,
+      }));
+    }
     return defaultSubscriberNoteTypeOptions();
   }, [renewalSubscriberContext?.subscriberNoteTypes]);
 
@@ -2661,11 +2666,11 @@ const SubscribersPage: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white text-sm"
                 >
                   <option value="all">كل الملاحظات</option>
-                  <option value={SubscriberNoteType.NoResponse}>لم يتم الرد</option>
-                  <option value={SubscriberNoteType.WillActivateSoon}>ستتم التفعيل قريباً</option>
-                  <option value={SubscriberNoteType.DoesNotWantActivation}>لا يرغب في التفعيل</option>
-                  <option value={SubscriberNoteType.BadService}>واصل ماستر</option>
-                  <option value={SubscriberNoteType.NeedsMaintenance}>واصل مكتب الزهور</option>
+                  <option value={SubscriberNoteType.NoResponse}>تحويل ماستر</option>
+                  <option value={SubscriberNoteType.WillActivateSoon}>الدفع عن طريق جهاز الماستر</option>
+                  <option value={SubscriberNoteType.DoesNotWantActivation}>نقدا</option>
+                  <option value={SubscriberNoteType.BadService}>واصل لمكتب محمد الجيزاني</option>
+                  <option value={SubscriberNoteType.NeedsMaintenance}>دين</option>
                   <option value={SubscriberNoteType.Other}>أخرى</option>
                 </select>
               </div>
@@ -3214,11 +3219,11 @@ const SubscribersPage: React.FC = () => {
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
                   >
-                    <option value={SubscriberNoteType.NoResponse}>لم يتم الرد</option>
-                    <option value={SubscriberNoteType.WillActivateSoon}>ستتم التفعيل قريباً</option>
-                    <option value={SubscriberNoteType.DoesNotWantActivation}>لا يرغب في التفعيل</option>
-                    <option value={SubscriberNoteType.BadService}>واصل ماستر</option>
-                    <option value={SubscriberNoteType.NeedsMaintenance}>واصل مكتب الزهور</option>
+                    <option value={SubscriberNoteType.NoResponse}>تحويل ماستر</option>
+                    <option value={SubscriberNoteType.WillActivateSoon}>الدفع عن طريق جهاز الماستر</option>
+                    <option value={SubscriberNoteType.DoesNotWantActivation}>نقدا</option>
+                    <option value={SubscriberNoteType.BadService}>واصل لمكتب محمد الجيزاني</option>
+                    <option value={SubscriberNoteType.NeedsMaintenance}>دين</option>
                     <option value={SubscriberNoteType.Other}>أخرى</option>
                   </select>
                 </div>

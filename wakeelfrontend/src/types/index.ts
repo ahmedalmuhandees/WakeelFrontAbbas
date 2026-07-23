@@ -28,17 +28,17 @@ export enum PaymentStatus {
   Unknown = 0  // للقيم غير المعرفة من الباكند
 }
 
-/** يطابق `Wakeel.Enums.SubscriberNoteType` — الأرقام ثابتة للبيانات المخزّنة؛ التسميات المعروضة في `subscriberNoteTypeLabels.ts`. */
+/** يطابق `Wakeel.Enums.SubscriberNoteType` — الأرقام ثابتة للبيانات المخزّنة؛ التسميات المعروضة في `subscriberNoteTypeLabels.ts` (جهة المبلغ الواصل). */
 export enum SubscriberNoteType {
-  /** لم يتم الرد */
+  /** تحويل ماستر */
   NoResponse = 1,
-  /** ستتم التفعيل قريباً */
+  /** الدفع عن طريق جهاز الماستر */
   WillActivateSoon = 2,
-  /** لا يرغب في التفعيل */
+  /** نقدا */
   DoesNotWantActivation = 3,
-  /** واصل ماستر */
+  /** واصل لمكتب محمد الجيزاني */
   BadService = 4,
-  /** واصل مكتب الزهور */
+  /** دين */
   NeedsMaintenance = 5,
   /** أخرى (نص حر في الملاحظة) */
   Other = 6,
@@ -496,15 +496,22 @@ export interface SyncContractIdToFatRequest {
   baseUrl: string;
   username: string;
   password: string;
+  /** للأدمن عند اختيار رسيلر تابع لوكيل معيّن */
+  agentId?: string;
 }
 
 /** استجابة مزامنة contract_id → Fat */
 export interface SyncContractIdToFatResponse {
   message?: string;
+  resellerId?: string;
   synced?: number;
   updated?: number;
   matched?: number;
   total?: number;
+  totalFromSas?: number;
+  skippedEmpty?: number;
+  skippedNoMatch?: number;
+  unchanged?: number;
   error?: string;
 }
 
