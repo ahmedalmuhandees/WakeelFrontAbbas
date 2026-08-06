@@ -41,6 +41,8 @@ import {
   RenewalReceipt,
   RenewalHistory,
   RenewalData,
+  ActivationRequest,
+  ActivationRequestStatus,
   RenewalActivationMode,
   PaymentStatus,
   SubscriptionType,
@@ -2269,17 +2271,36 @@ class ApiService {
         payload.subscriberNoteType = Number(snt);
       }
 
-      const response: AxiosResponse<any> = await this.api.post('/renewals', payload);
+      // التفعيل المالي وإصدار الوصل يمران عبر طلب التفعيل، ثم يؤكّد الموظف تنفيذ الرسيلر من الصفحة المخصصة.
+      const response: AxiosResponse<ActivationRequest> = await this.api.post('/ActivationRequests', { renewal: payload });
       
       // تسجيل استجابة الباك إند للتحقق من رقم الفاتورة
       console.log('Backend response for renewal creation:', response.data);
-      console.log('Receipt number from backend:', response.data?.receiptNumber);
+      console.log('Receipt number from backend:', response.data?.renewal?.receiptNumber);
       
-      return response.data;
+      return response.data.renewal;
     } catch (error) {
       console.error('Error creating renewal:', error);
       throw error; // إعادة رمي الخطأ بدلاً من إرجاع بيانات وهمية
     }
+  }
+
+  async createActivationRequest(renewalData: RenewalData): Promise<ActivationRequest> {
+    const response = await this.api.post<ActivationRequest>('/ActivationRequests', { renewal: renewalData });
+    return response.data;
+  }
+
+  async getActivationRequests(params?: {
+    page?: number; pageSize?: number; status?: ActivationRequestStatus;
+    resellerId?: string; searchTerm?: string; fromDate?: string; toDate?: string;
+  }): Promise<PaginatedResponse<ActivationRequest>> {
+    const response = await this.api.get<PaginatedResponse<ActivationRequest>>('/ActivationRequests', { params });
+    return response.data;
+  }
+
+  async confirmActivationRequest(id: string): Promise<ActivationRequest> {
+    const response = await this.api.post<ActivationRequest>(`/ActivationRequests/${id}/confirm`);
+    return response.data;
   }
 
 

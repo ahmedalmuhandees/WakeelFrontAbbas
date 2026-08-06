@@ -140,6 +140,7 @@ function SettingsPage() {
   const [ftthUsername, setFtthUsername] = useState('');
   const [ftthPassword, setFtthPassword] = useState('');
   const [agentCompanyName, setAgentCompanyName] = useState('');
+  const [activationRequestRecipient, setActivationRequestRecipient] = useState('');
   useEffect(() => {
     if (myAgent) {
       setSasBaseUrl(myAgent.sasBaseUrl ?? '');
@@ -150,6 +151,7 @@ function SettingsPage() {
       setFtthUsername(myAgent.ftthUsername ?? '');
       setFtthPassword('');
       setAgentCompanyName(myAgent.companyName ?? '');
+      setActivationRequestRecipient(myAgent.activationRequestWhatsAppRecipient ?? '');
     }
   }, [myAgent]);
 
@@ -325,6 +327,24 @@ function SettingsPage() {
     onError: (err: any) => {
       showError('خطأ', ApiService.showError(err));
     },
+  });
+
+  const updateActivationRequestRecipientMutation = useMutation({
+    mutationFn: async (recipient: string) => {
+      if (!myAgent) throw new Error('لا يوجد وكيل');
+      return apiService.updateAgent(myAgent.id, {
+        fullName: myAgent.fullName, companyName: myAgent.companyName, phone: myAgent.phone,
+        address: myAgent.address, governorate: myAgent.governorate, isActive: myAgent.isActive,
+        subscriptionType: myAgent.subscriptionType, subscriptionStartDate: myAgent.subscriptionStartDate,
+        subscriptionEndDate: myAgent.subscriptionEndDate,
+        activationRequestWhatsAppRecipient: recipient.trim(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MY_AGENT_QUERY_KEY });
+      showSuccess('تم الحفظ', 'تم حفظ رقم استقبال طلبات التفعيل.');
+    },
+    onError: (err: any) => showError('خطأ', ApiService.showError(err)),
   });
 
   const updateAgentCompanyNameMutation = useMutation({
@@ -3223,6 +3243,24 @@ function SettingsPage() {
                       placeholder="مثال: 9647XXXXXXXX"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
                     />
+                  </div>
+                  <div className="rounded-lg border border-primary-100 dark:border-primary-900/50 p-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      رقم استقبال رسائل طلبات التفعيل
+                    </label>
+                    <p className="text-xs text-gray-500 mb-2">تُرسل إليه رسالة عند إصدار الوصل وبقاء المشترك بانتظار تفعيل الرسيلر.</p>
+                    <div className="flex gap-2">
+                      <input type="tel" value={activationRequestRecipient}
+                        onChange={(e) => setActivationRequestRecipient(e.target.value)}
+                        placeholder="مثال: 9647XXXXXXXX"
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white" />
+                      <button type="button"
+                        onClick={() => updateActivationRequestRecipientMutation.mutate(activationRequestRecipient)}
+                        disabled={updateActivationRequestRecipientMutation.isPending}
+                        className="px-3 py-2 rounded-md bg-primary-600 text-white disabled:opacity-50">
+                        حفظ
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <button

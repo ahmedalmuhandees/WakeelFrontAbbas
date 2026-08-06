@@ -31,6 +31,7 @@ const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const AccountsOtherDealerPage = lazy(() => import('./pages/AccountsOtherDealerPage'));
 const SystemLogPage = lazy(() => import('./pages/SystemLogPage'));
 const ReceiptsPage = lazy(() => import('./pages/ReceiptsPage'));
+const ActivationRequestsPage = lazy(() => import('./pages/ActivationRequestsPage'));
 const BalancePage = lazy(() => import('./pages/BalancePage'));
 const DebtsPage = lazy(() => import('./pages/DebtsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
@@ -346,6 +347,11 @@ function App() {
                   <Route path="receipts" element={
                     <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
                       <ReceiptsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="activation-requests" element={
+                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
+                      <ActivationRequestsPage />
                     </ProtectedRoute>
                   } />
                   <Route path="balance" element={

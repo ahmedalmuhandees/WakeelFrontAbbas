@@ -1504,6 +1504,8 @@ export interface Agent {
   hasStoredSyncPassword?: boolean;
   /** معرف جلسة واتساب (لإرسال التذكير عبر wwebjs-api) */
   whatsAppSessionId?: string | null;
+  /** رقم استقبال إشعارات طلبات التفعيل */
+  activationRequestWhatsAppRecipient?: string | null;
   tenantPlanType?: TenantPlanType | null;
   standardPlanTierId?: StandardPlanTier | null;
   standardPlanTier?: 'economy' | 'plus' | 'gold' | null;
@@ -1717,6 +1719,8 @@ export interface AgentUpdateRequest {
   ftthPassword?: string;
   /** معرف جلسة واتساب */
   whatsAppSessionId?: string;
+  /** رقم استقبال إشعارات طلبات التفعيل */
+  activationRequestWhatsAppRecipient?: string;
   /** كلمة مرور تسجيل الدخول — اختياري؛ إن لم تُرسل أو تُرك فارغاً لا يُغيّر الخادم كلمة المرور (مثلاً PUT /main-agent/sub-agents/{id}) */
   password?: string;
 }
@@ -2885,6 +2889,30 @@ export interface RenewalData {
   activationMode?: RenewalActivationMode;
   /** مطلوب عند activationMode === OtherDealer — معرف التاجر (GET /Dealers) */
   dealerId?: string;
+}
+
+export enum ActivationRequestStatus {
+  PendingResellerActivation = 0,
+  Confirmed = 1,
+  Cancelled = 2,
+}
+
+export interface ActivationRequest {
+  id: string;
+  status: ActivationRequestStatus;
+  subscriberId: string;
+  subscriberName: string;
+  subscriberUsername: string;
+  renewalId: string;
+  agentResellerId?: string | null;
+  agentResellerName?: string | null;
+  createdByUserId: string;
+  confirmedByUserId?: string | null;
+  createdAt: string;
+  confirmedAt?: string | null;
+  cancelledAt?: string | null;
+  notes?: string | null;
+  renewal?: RenewalReceipt | null;
 }
 
 export interface SubscriberRenewalInfo {
