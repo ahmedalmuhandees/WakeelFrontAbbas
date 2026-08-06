@@ -771,12 +771,10 @@ class ApiService {
   }
 
   constructor() {
-    // API URL - Priority: 1. REACT_APP_API_URL, 2. في التطوير: محلي، 3. إنتاج (بدون REACT_APP_API_URL)
+    // API URL - Priority: 1. REACT_APP_API_URL, 2. رابط جيزان الاحتياطي
     // يجب أن ينتهي الرابط بـ /wakeel/api وليس /api فقط
-    // إنتاج سابق (لم يُحذف): https://api-v2.execute-iq.com/wakeel/api
-    const defaultForDev = 'http://localhost:5112/wakeel/api';
-    // إنتاج سابق: https://lab.execute-iq.com/wakeel/api
-    const defaultForProd = 'https://wakeelhus-001-site1.rtempurl.com/wakeel/api';
+    const defaultForDev = 'https://jizan-api.execute-iq.com/wakeel/api';
+    const defaultForProd = 'https://jizan-api.execute-iq.com/wakeel/api';
     const baseURL = process.env.REACT_APP_API_URL
       || (process.env.NODE_ENV === 'development' ? defaultForDev : defaultForProd);
 

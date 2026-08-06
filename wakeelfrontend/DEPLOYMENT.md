@@ -36,7 +36,7 @@ npm run deploy
 1. اذهب إلى Settings > Environment Variables
 2. أضف متغير جديد:
    - Name: `REACT_APP_API_URL`
-   - Value: `https://wakeelbackend-production.up.railway.app/wakeel/api`
+   - Value: `https://jizan-api.execute-iq.com/wakeel/api`
 
 ## النشر على Netlify
 
@@ -52,7 +52,7 @@ npm run deploy
 1. اذهب إلى Site settings > Environment variables
 2. أضف متغير جديد:
    - Key: `REACT_APP_API_URL`
-   - Value: `https://wakeelbackend-production.up.railway.app/wakeel/api`
+   - Value: `https://jizan-api.execute-iq.com/wakeel/api`
 
 ## النشر على Firebase Hosting
 
@@ -83,27 +83,24 @@ firebase deploy
 
 ## رابط الباكند
 
-رابط الباكند الحالي (Railway):
+رابط الباكند الحالي (جيزان):
 
 ```
-REACT_APP_API_URL=https://wakeelbackend-production.up.railway.app/wakeel/api
+REACT_APP_API_URL=https://jizan-api.execute-iq.com/wakeel/api
 ```
 
 انسخ `.env.example` إلى `.env.local` وعدّل القيمة إن لزم. التطبيق يقرأ `REACT_APP_API_URL` من البيئة.
 
-**مهم:** في React تُحقَن متغيرات البيئة عند **وقت البناء** (build). إذا ظهرت الطلبات على الرابط القديم (مثل api.execute-iq.com) بعد النشر:
-1. في منصة النشر (Railway / Vercel / Netlify): عيّن **متغير البيئة** `REACT_APP_API_URL` = `https://wakeelbackend-production.up.railway.app/wakeel/api`
+**مهم:** في React تُحقَن متغيرات البيئة عند **وقت البناء** (build). إذا ظهرت الطلبات على رابط قديم بعد النشر:
+1. في منصة النشر (Railway / Vercel / Netlify): عيّن **متغير البيئة** `REACT_APP_API_URL` = `https://jizan-api.execute-iq.com/wakeel/api`
 2. نفّذ **إعادة بناء وتنشر** (Redeploy / Build again) حتى يُبنى المشروع من جديد بالقيمة الجديدة.
 
 ## إعدادات مهمة
 
 ### متغيرات البيئة المطلوبة
 ```
-# الباكند الحالي (Railway)
-REACT_APP_API_URL=https://wakeelbackend-production.up.railway.app/wakeel/api
-
-# إنتاج (بديل)
-# REACT_APP_API_URL=https://wakeeliq-001-site1.qtempurl.com/api
+# الباكند الحالي (جيزان)
+REACT_APP_API_URL=https://jizan-api.execute-iq.com/wakeel/api
 
 # تطوير محلي
 # REACT_APP_API_URL=http://localhost:5112/wakeel/api
