@@ -159,7 +159,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       path: '/admin/activation-requests',
       icon: Clock,
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-      requiredFeature: 'module_activations',
     },
     {
       name: 'الديون',
