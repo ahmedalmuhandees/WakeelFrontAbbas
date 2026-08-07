@@ -15,6 +15,7 @@ import type {
   EmployeeTask,
   EmployeeTaskCompleteInstallationRequest,
   EmployeeTaskCompleteMaintenanceRequest,
+  EmployeeTaskDeferMaintenanceRequest,
   EmployeeTaskCompleteAmountReceptionRequest,
   EmployeeTaskCreateRequest,
   EmployeeTaskCreateBatchResponse,
@@ -134,6 +135,25 @@ function taskCardUsesSubscriberBlock(task: EmployeeTask): boolean {
   );
 }
 
+async function copySubscriberCoordinates(value?: string | null) {
+  const coordinates = value?.trim();
+  if (!coordinates) return;
+
+  try {
+    await navigator.clipboard.writeText(coordinates);
+  } catch {
+    const input = document.createElement('textarea');
+    input.value = coordinates;
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  }
+  showSuccess('تم النسخ', 'تم نسخ إحداثيات الموقع الجغرافي.');
+}
+
 const formatTaskDate = (value?: string | null) => {
   if (!value) return '—';
   const d = new Date(value);
@@ -245,6 +265,7 @@ interface EmployeeTaskCardProps {
   onDetails: () => void;
   onCompleteInstallation: () => void;
   onCompleteMaintenance: () => void;
+  onDeferMaintenance: () => void;
   onCompleteAmount: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -260,6 +281,7 @@ const EmployeeTaskCard: React.FC<EmployeeTaskCardProps> = ({
   onDetails,
   onCompleteInstallation,
   onCompleteMaintenance,
+  onDeferMaintenance,
   onCompleteAmount,
   onEdit,
   onDelete,
@@ -319,6 +341,22 @@ const EmployeeTaskCard: React.FC<EmployeeTaskCardProps> = ({
                         {subscriberName}
                       </p>
                     </div>
+                    {task.subscriberId && (
+                      <div className="grid grid-cols-1 gap-1.5 border-t border-gray-200/90 pt-2 text-xs dark:border-gray-600/60 sm:grid-cols-2">
+                        <p><span className="font-bold text-gray-600 dark:text-gray-300">رقم الهاتف: </span>{task.subscriberPhoneNumber || '—'}</p>
+                        <p><span className="font-bold text-gray-600 dark:text-gray-300">اسم المستخدم: </span>{task.subscriberUsername || '—'}</p>
+                        <p><span className="font-bold text-gray-600 dark:text-gray-300">المسار: </span>{task.subscriberPathName || '—'}</p>
+                        <button
+                          type="button"
+                          disabled={!task.subscriberFat?.trim()}
+                          onClick={() => void copySubscriberCoordinates(task.subscriberFat)}
+                          className="w-fit text-right font-medium text-primary-700 underline decoration-dotted underline-offset-2 transition hover:text-primary-900 disabled:cursor-default disabled:text-gray-500 disabled:no-underline dark:text-primary-300 dark:hover:text-primary-100"
+                          title="انسخ الإحداثيات"
+                        >
+                          <span className="font-bold">الموقع الجغرافي: </span>{task.subscriberFat || '—'}
+                        </button>
+                      </div>
+                    )}
                     {variant === 'manager' && (
                       <div className="border-t border-gray-200/90 pt-2 dark:border-gray-600/60">
                         <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
@@ -350,6 +388,11 @@ const EmployeeTaskCard: React.FC<EmployeeTaskCardProps> = ({
                 {subscriberBlock && maintenanceDetail && (
                   <p className="mt-1.5 text-right text-xs font-medium text-gray-600 dark:text-gray-400">
                     نوع الصيانة: {maintenanceDetail}
+                  </p>
+                )}
+                {task.deferredReason && (
+                  <p className="mt-1.5 rounded-md bg-amber-50 px-2 py-1.5 text-right text-xs font-medium text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+                    مؤجلة: {task.deferredReason}
                   </p>
                 )}
                 {subscriberBlock && amountDetail && (
@@ -473,6 +516,15 @@ const EmployeeTaskCard: React.FC<EmployeeTaskCardProps> = ({
             {variant === 'employee' && task.status === EmployeeTaskStatus.Accepted && task.taskType === EmployeeTaskType.SubscriberMaintenance && (
               <button
                 type="button"
+                onClick={onDeferMaintenance}
+                className="inline-flex min-h-[34px] items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100 sm:min-h-[36px] sm:text-sm"
+              >
+                تأجيل الصيانة
+              </button>
+            )}
+            {variant === 'employee' && task.status === EmployeeTaskStatus.Accepted && task.taskType === EmployeeTaskType.SubscriberMaintenance && (
+              <button
+                type="button"
                 onClick={onCompleteMaintenance}
                 className="inline-flex min-h-[34px] items-center gap-1 rounded-lg bg-gradient-to-l from-green-700 to-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:from-green-800 hover:to-green-700 sm:min-h-[36px] sm:text-sm"
               >
@@ -536,6 +588,8 @@ const EmployeeTasksPage: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<EmployeeTask | null>(null);
   const [rejectModalTask, setRejectModalTask] = useState<EmployeeTask | null>(null);
   const [rejectReasonDraft, setRejectReasonDraft] = useState('');
+  const [deferModalTask, setDeferModalTask] = useState<EmployeeTask | null>(null);
+  const [deferReasonDraft, setDeferReasonDraft] = useState('');
   const employeeTaskRejectToastDedupeRef = useRef<{ id: string; at: number } | null>(null);
 
   const [createForm, setCreateForm] = useState<EmployeeTaskCreateRequest>({
@@ -1166,6 +1220,19 @@ const EmployeeTasksPage: React.FC = () => {
     onError: (err) => showError('خطأ', ApiService.showError(err)),
   });
 
+  const deferMaintenanceMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: EmployeeTaskDeferMaintenanceRequest }) =>
+      apiService.deferEmployeeMaintenanceTask(id, payload),
+    onSuccess: async (updated) => {
+      showSuccess('تم التأجيل', 'عادت مهمة الصيانة إلى حالة الانتظار.');
+      if (updated?.id) mergeEmployeeTaskIntoQueryCaches(queryClient, updated);
+      setDeferModalTask(null);
+      setDeferReasonDraft('');
+      await queryClient.invalidateQueries({ queryKey: ['employee-tasks'], refetchType: 'all' });
+    },
+    onError: (err) => showError('خطأ', ApiService.showError(err)),
+  });
+
   const completeAmountReceptionMutation = useMutation({
     mutationFn: ({
       id,
@@ -1536,6 +1603,10 @@ const EmployeeTasksPage: React.FC = () => {
                       setCompleteMaintenanceForm({ note: task.note || '' });
                       setShowCompleteModal(true);
                     }}
+                    onDeferMaintenance={() => {
+                      setDeferModalTask(task);
+                      setDeferReasonDraft('');
+                    }}
                     onCompleteAmount={() => {
                       setSelectedTask(task);
                       setCompleteAmountReceptionForm({
@@ -1583,6 +1654,7 @@ const EmployeeTasksPage: React.FC = () => {
                     }}
                     onCompleteInstallation={() => {}}
                     onCompleteMaintenance={() => {}}
+                    onDeferMaintenance={() => {}}
                     onCompleteAmount={() => {}}
                     onEdit={() => {
                       setSelectedTask(task);
@@ -2215,6 +2287,36 @@ const EmployeeTasksPage: React.FC = () => {
                   حفظ الإكمال
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deferModalTask && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-3">
+          <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900 dark:text-white">تأجيل الصيانة</h3>
+              <button type="button" onClick={() => { setDeferModalTask(null); setDeferReasonDraft(''); }} className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            </div>
+            <div className="p-4 grid grid-cols-1 gap-3 text-sm">
+              <p className="text-gray-600 dark:text-gray-300">سبب التأجيل مطلوب. ستعود المهمة إلى الانتظار ولن تُعد مكتملة.</p>
+              <textarea value={deferReasonDraft} onChange={(e) => setDeferReasonDraft(e.target.value.slice(0, 1000))}
+                rows={5} placeholder="سبب التأجيل…" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white" />
+            </div>
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+              <button type="button" onClick={() => { setDeferModalTask(null); setDeferReasonDraft(''); }} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md text-gray-700 dark:text-gray-200">إلغاء</button>
+              <button type="button" disabled={deferMaintenanceMutation.isPending}
+                onClick={() => {
+                  const reason = deferReasonDraft.trim();
+                  if (!reason) { showError('خطأ', 'سبب التأجيل مطلوب.'); return; }
+                  deferMaintenanceMutation.mutate({ id: deferModalTask.id, payload: { reason } });
+                }}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md disabled:opacity-50">
+                تأجيل المهمة
+              </button>
             </div>
           </div>
         </div>

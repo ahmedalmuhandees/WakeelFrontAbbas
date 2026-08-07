@@ -1569,6 +1569,10 @@ export interface EmployeeTask {
   subscriberName?: string | null;
   subscriberPhone?: string | null;
   subscriberDisplayName?: string | null;
+  subscriberPhoneNumber?: string | null;
+  subscriberUsername?: string | null;
+  subscriberPathName?: string | null;
+  subscriberFat?: string | null;
   /** عند taskType = SubscriberMaintenance: 1–4 و 5 = تبديل مسار، 6 = استبدال راوتر */
   maintenanceType?: SubscriberMaintenanceKind | null;
   amountReceived?: number | null;
@@ -1593,6 +1597,8 @@ export interface EmployeeTask {
   /** سبب الرفض (حالة Rejected) */
   rejectionReason?: string | null;
   rejectedAt?: string | null;
+  deferredReason?: string | null;
+  deferredAt?: string | null;
   createdAt: string;
 }
 
@@ -1651,6 +1657,10 @@ export interface EmployeeTaskCompleteInstallationRequest {
 
 export interface EmployeeTaskCompleteMaintenanceRequest {
   note?: string;
+}
+
+export interface EmployeeTaskDeferMaintenanceRequest {
+  reason: string;
 }
 
 export interface EmployeeTaskCompleteAmountReceptionRequest {

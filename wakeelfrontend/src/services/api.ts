@@ -1582,6 +1582,17 @@ class ApiService {
     return response.data;
   }
 
+  async deferEmployeeMaintenanceTask(
+    id: string,
+    data: import('../types').EmployeeTaskDeferMaintenanceRequest
+  ): Promise<import('../types').EmployeeTask> {
+    const response = await this.api.post<import('../types').EmployeeTask>(
+      `/EmployeeTasks/${id}/defer-maintenance`,
+      { reason: data.reason.trim() }
+    );
+    return response.data;
+  }
+
   async completeEmployeeAmountReceptionTask(
     id: string,
     data: import('../types').EmployeeTaskCompleteAmountReceptionRequest
