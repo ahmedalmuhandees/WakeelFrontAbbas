@@ -56,7 +56,8 @@ const SUBSCRIBERS_TABLE_COLUMNS: { id: string; label: string }[] = [
   { id: 'phoneNumber', label: 'رقم الهاتف' },
   { id: 'agentCompanyName', label: 'شركة الوكيل' },
   { id: 'fat', label: 'الموقع الجغرافي' },
-  { id: 'zone', label: 'المنطقة' },
+  { id: 'zone', label: 'اسم المسار' },
+  { id: 'deviceSerialNumber', label: 'السيريال' },
   { id: 'noteType', label: 'نوع الملاحظة' },
   { id: 'note', label: 'الملاحظات' },
   { id: 'profile', label: 'الباقة' },
@@ -2660,10 +2661,10 @@ const SubscribersPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">المنطقة</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">اسم المسار</label>
                 <input
                   type="text"
-                  placeholder="المنطقة"
+                  placeholder="اسم المسار"
                   maxLength={200}
                   value={zoneFilter}
                   onChange={(e) => setZoneFilter(e.target.value)}
@@ -2844,7 +2845,10 @@ const SubscribersPage: React.FC = () => {
                   الموقع الجغرافي
                 </th>
                 <th className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col('zone')}`}>
-                  المنطقة
+                  اسم المسار
+                </th>
+                <th className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col('deviceSerialNumber')}`}>
+                  السيريال
                 </th>
                 <th className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col('noteType')}`}>
                   نوع الملاحظة
@@ -2936,6 +2940,9 @@ const SubscribersPage: React.FC = () => {
                   </td>
                   <td className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white ${col('zone')}`}>
                     {subscriber.zone ?? '—'}
+                  </td>
+                  <td className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white ${col('deviceSerialNumber')}`}>
+                    {subscriber.deviceSerialNumber ?? '—'}
                   </td>
                   <td className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white ${col('noteType')}`}>
                     {getSubscriberNoteTypeBadge(subscriber.noteType, subscriber.note ?? null)}
@@ -3257,8 +3264,8 @@ const SubscribersPage: React.FC = () => {
                 )}
               </div>
 
-              {/* الموقع الجغرافي والمنطقة */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* الموقع الجغرافي واسم المسار والسيريال */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     الموقع الجغرافي
@@ -3275,7 +3282,7 @@ const SubscribersPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المنطقة
+                    اسم المسار
                   </label>
                   <input
                     type="text"
@@ -3284,8 +3291,15 @@ const SubscribersPage: React.FC = () => {
                     onChange={handleInputChange}
                     maxLength={200}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="المنطقة (اختياري)"
+                    placeholder="اسم المسار (اختياري)"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">السيريال</label>
+                  <input type="text" name="deviceSerialNumber" value={formData.deviceSerialNumber ?? ''}
+                    onChange={handleInputChange} maxLength={200}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="السيريال (اختياري)" />
                 </div>
               </div>
 

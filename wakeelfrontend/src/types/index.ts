@@ -2116,8 +2116,10 @@ export interface Subscriber {
   totalDebt?: number;
   /** الموقع الجغرافي (اختياري، حد أقصى 200 حرف) */
   fat?: string | null;
-  /** المنطقة (اختياري، حد أقصى 200 حرف) */
+  /** اسم المسار (اختياري، حد أقصى 200 حرف) */
   zone?: string | null;
+  /** سيريال جهاز المشترك */
+  deviceSerialNumber?: string | null;
   /** صيانات مكتملة مرتبطة بالمشترك (من مهام الموظفين)، من الأحدث للأقدم */
   maintenanceRecords?: SubscriberMaintenanceRecordDto[];
   /** ملخص إرسالات واتساب وسجل محاولات (يُملأ من تفاصيل المشترك بالمعرّف) */
@@ -2142,8 +2144,9 @@ export interface SubscriberCreateRequest {
   subscriptionType: SubscriptionType;
   /** الموقع الجغرافي (اختياري، حد أقصى 200 حرف) */
   fat?: string;
-  /** المنطقة (اختياري، حد أقصى 200 حرف) */
+  /** اسم المسار (اختياري، حد أقصى 200 حرف) */
   zone?: string;
+  deviceSerialNumber?: string;
   /** مطلوب — رسيلر/منطقة الوكيل؛ الباقة يجب أن تكون مربوطة بنفس الرسيلر */
   agentResellerId: string;
 }
@@ -2174,6 +2177,7 @@ export interface SubscriberUpdateRequest {
   subscriptionType?: SubscriptionType;
   fat?: string;
   zone?: string;
+  deviceSerialNumber?: string;
   /** مطلوب — نفس قيمة المشترك من GET (الرسيلر التابع لوكيل المشترك) */
   agentResellerId: string;
 }

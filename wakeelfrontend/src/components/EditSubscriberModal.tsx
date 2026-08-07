@@ -38,6 +38,7 @@ const EditSubscriberModal: React.FC<EditSubscriberModalProps> = ({
     expirationDate: subscriber.expirationDate || subscriber.activationDate,
     fat: subscriber.fat ?? '',
     zone: subscriber.zone ?? '',
+    deviceSerialNumber: subscriber.deviceSerialNumber ?? '',
     agentResellerId: (subscriber.agentResellerId ?? '').trim(),
   });
 
@@ -62,6 +63,7 @@ const EditSubscriberModal: React.FC<EditSubscriberModalProps> = ({
         expirationDate: subscriber.expirationDate || subscriber.activationDate,
         fat: subscriber.fat ?? '',
         zone: subscriber.zone ?? '',
+        deviceSerialNumber: subscriber.deviceSerialNumber ?? '',
         agentResellerId: (subscriber.agentResellerId ?? '').trim(),
       });
     }
@@ -124,6 +126,7 @@ const EditSubscriberModal: React.FC<EditSubscriberModalProps> = ({
         subscriptionType: formData.subscriptionType,
         fat: formData.fat,
         zone: formData.zone,
+        deviceSerialNumber: formData.deviceSerialNumber,
         agentResellerId: resellerId,
       };
 
@@ -291,10 +294,10 @@ const EditSubscriberModal: React.FC<EditSubscriberModalProps> = ({
               />
             </div>
 
-            {/* المنطقة */}
+            {/* اسم المسار */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                المنطقة
+                اسم المسار
               </label>
               <input
                 type="text"
@@ -302,8 +305,15 @@ const EditSubscriberModal: React.FC<EditSubscriberModalProps> = ({
                 value={formData.zone ?? ''}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
-                placeholder="المنطقة (اختياري)"
+                placeholder="اسم المسار (اختياري)"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">السيريال</label>
+              <input type="text" name="deviceSerialNumber" value={formData.deviceSerialNumber ?? ''}
+                onChange={handleInputChange} maxLength={200}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                placeholder="السيريال (اختياري)" />
             </div>
 
             {/* Profile */}

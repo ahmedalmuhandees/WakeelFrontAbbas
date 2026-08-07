@@ -556,7 +556,8 @@ const SubscriberDetailsPage: React.FC = () => {
                 <InfoCell label="معرف الاشتراك" value={subscriber.secruptionId?.trim() || '—'} icon={<Hash className="h-3.5 w-3.5" />} />
                 <InfoCell label="FTTH subscription" value={subscriber.ftthSubscriptionId?.trim() || '—'} />
                 <InfoCell label="الموقع الجغرافي" value={subscriber.fat?.trim() || '—'} icon={<MapPin className="h-3.5 w-3.5" />} />
-                <InfoCell label="المنطقة" value={subscriber.zone?.trim() || '—'} />
+                <InfoCell label="اسم المسار" value={subscriber.zone?.trim() || '—'} />
+                <InfoCell label="السيريال" value={subscriber.deviceSerialNumber?.trim() || '—'} />
                 <InfoCell label="نوع الملاحظة" value="" custom={getNoteTypeBadge(subscriber.noteType, subscriber.note ?? null)} />
                 {((subscriber.noteType === SubscriberNoteType.Other) ||
                   (!subscriber.noteType && (subscriber.note || '').toString().trim())) &&
