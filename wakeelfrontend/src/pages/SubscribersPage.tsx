@@ -423,7 +423,7 @@ const SubscribersPage: React.FC = () => {
     enabled: showRenewalModal && !!selectedSubscriber,
   });
 
-  const { data: renewalSubscriberContext, isLoading: renewalDealersLoading } = useQuery<{
+  const { data: renewalSubscriberContext } = useQuery<{
     dealers: Dealer[];
     subscriberNoteTypes: SubscriberNoteTypeOption[];
   }>({
@@ -829,19 +829,15 @@ const SubscribersPage: React.FC = () => {
     (renewalData.activationMode ?? RenewalActivationMode.Full) === RenewalActivationMode.OtherDealer &&
     !!selectedSubscriber;
 
-  const { data: renewalModalBalanceDetail, isLoading: renewalBalanceLoading } = useQuery({
+  const { data: renewalModalBalanceDetail } = useQuery({
     queryKey: ['balance-detail'],
     queryFn: () => apiService.getBalance(),
     enabled: renewalModalBalanceQueryEnabled,
     staleTime: 30_000,
   });
 
-  const subscriberAgentResellerIdForBalance = (selectedSubscriber?.agentResellerId ?? '').trim();
   const renewalModalResellerRows = renewalModalBalanceDetail?.resellerBalances ?? [];
   const hasRenewalModalResellerRegions = renewalModalResellerRows.length > 0;
-  const subscriberRegionBalanceRow = subscriberAgentResellerIdForBalance
-    ? renewalModalResellerRows.find((r) => r.id === subscriberAgentResellerIdForBalance)
-    : undefined;
 
   useEffect(() => {
     if (renewalInfo && !renewalData.newProfileId) {
