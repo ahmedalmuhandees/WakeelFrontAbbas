@@ -15,7 +15,6 @@ import {
   BarChart3,
   CreditCard,
   FileSpreadsheet,
-  Receipt,
   Settings,
   Sun,
   Moon,
@@ -32,7 +31,6 @@ import {
   Zap,
   CircleDollarSign,
   History,
-  UsersRound,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -137,18 +135,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]
     },
     {
-      name: 'إدارة الوكلاء',
-      path: '/admin/dealers',
-      icon: UsersRound,
-      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-      children: [
-        { name: 'عرض الوكلاء', path: '/admin/dealers', employeeRequiresDealerAccess: true },
-        { name: 'حسابات مشتركين الوكلاء', path: '/admin/reports/other-dealer' },
-        { name: 'ديون الوكلاء', path: '/admin/dealers/debts', employeeRequiresDealerAccess: true },
-        { name: 'تحويلات أرصدة الوكلاء', path: '/admin/dealers/balance-transfers' },
-      ],
-    },
-    {
       name: 'التفعيلات',
       path: '/admin/receipts',
       icon: Zap,
@@ -158,24 +144,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       name: 'طلبات التفعيل',
       path: '/admin/activation-requests',
       icon: Clock,
-      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-    },
-    {
-      name: 'الديون',
-      path: '/admin/debts',
-      icon: CreditCard,
-      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]
-    },
-    {
-      name: 'حسابات المشتركين',
-      path: '/admin/reports',
-      icon: BarChart3,
-      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-    },
-    {
-      name: 'حسابات مشتركين التطبيق',
-      path: '/admin/reports/app-subscribers',
-      icon: BarChart3,
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
     },
     {
@@ -190,17 +158,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       icon: Package,
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
       hiddenWhenFeature: 'hide_subscription_pages',
-    },
-    {
-      name: 'المواد والمبيعات',
-      path: '/admin/materials',
-      icon: Store,
-      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-      children: [
-        { name: 'إدارة المواد', path: '/admin/materials' },
-        { name: 'شاشة البيع', path: '/admin/materials/disbursed' },
-        { name: 'سجل المبيعات', path: '/admin/materials/sales-history' },
-      ],
     },
     {
       name: 'إدارة الموظفين',
@@ -228,13 +185,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       path: '/admin/balance',
       icon: CircleDollarSign,
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-    },
-    {
-      name: 'فواتير العملاء',
-      path: '/admin/customer-invoices',
-      icon: Receipt,
-      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
-      requiresInvoiceAccess: true,
     },
     {
       name: 'الإعدادات',

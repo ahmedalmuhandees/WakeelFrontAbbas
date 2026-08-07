@@ -27,23 +27,15 @@ const SubscriberInfoPage = lazy(() => import('./pages/SubscriberInfoPage'));
 const PackagesPage = lazy(() => import('./pages/PackagesPage'));
 const AgentsPage = lazy(() => import('./pages/AgentsPage'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
-const ReportsPage = lazy(() => import('./pages/ReportsPage'));
-const AccountsOtherDealerPage = lazy(() => import('./pages/AccountsOtherDealerPage'));
 const SystemLogPage = lazy(() => import('./pages/SystemLogPage'));
 const ReceiptsPage = lazy(() => import('./pages/ReceiptsPage'));
 const ActivationRequestsPage = lazy(() => import('./pages/ActivationRequestsPage'));
 const BalancePage = lazy(() => import('./pages/BalancePage'));
-const DebtsPage = lazy(() => import('./pages/DebtsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const ExcelImportPage = lazy(() => import('./pages/ExcelImportPage'));
 const ResellersPage = lazy(() => import('./pages/ResellersPage'));
-const DealersPage = lazy(() => import('./pages/DealersPage'));
-const DealerDebtsPage = lazy(() => import('./pages/DealerDebtsPage'));
-const DealerBalanceTransfersPage = lazy(() => import('./pages/DealerBalanceTransfersPage'));
 const EmployeesPage = lazy(() => import('./pages/EmployeesPage'));
 const EmployeeTasksPage = lazy(() => import('./pages/EmployeeTasksPage'));
-const MaterialsPage = lazy(() => import('./pages/MaterialsPage'));
-const MaterialsDisbursementPage = lazy(() => import('./pages/MaterialsDisbursementPage'));
 const SystemMessagePage = lazy(() => import('./pages/SystemMessagePage'));
 const OfficeExpensesPage = lazy(() => import('./pages/OfficeExpensesPage'));
 const SalarySheetPage = lazy(() => import('./pages/SalarySheetPage'));
@@ -52,10 +44,7 @@ const MainAgentSubAgentCreatePage = lazy(() => import('./pages/MainAgentSubAgent
 const MainAgentSubAgentEditPage = lazy(() => import('./pages/MainAgentSubAgentEditPage'));
 const MainAgentSubAgentSubscribersPage = lazy(() => import('./pages/MainAgentSubAgentSubscribersPage'));
 const MainAgentSubAgentRenewalsPage = lazy(() => import('./pages/MainAgentSubAgentRenewalsPage'));
-const MainAgentSubAgentDebtsPage = lazy(() => import('./pages/MainAgentSubAgentDebtsPage'));
 const MainAgentSubAgentDailyAccountPage = lazy(() => import('./pages/MainAgentSubAgentDailyAccountPage'));
-const CustomerInvoicesPage = lazy(() => import('./pages/CustomerInvoicesPage'));
-const AppSubscribersAccountsPage = lazy(() => import('./pages/AppSubscribersAccountsPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,48 +98,8 @@ function EmployeeTasksAccessRoute({ children }: { children: React.ReactNode }) {
   if (
     user?.role === UserRole.Employee &&
     !user?.canReceiveTaskRequests &&
-    !user?.canManageEmployeeTasks &&
-    !user?.canManageMaterialsAndSales
+    !user?.canManageEmployeeTasks
   ) {
-    return <Navigate to="/admin/subscribers" replace />;
-  }
-  return <>{children}</>;
-}
-
-/** صفحات المواد والمبيعات: للموظف فقط عند تفعيل إدارة المبيعات والمواد */
-function MaterialsAccessRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  if (user?.role === UserRole.Employee && !user?.canManageMaterialsAndSales) {
-    return <Navigate to="/admin/subscribers" replace />;
-  }
-  return <>{children}</>;
-}
-
-/** التجار وتحويلاتهم وديونهم: للموظف فقط عند تفعيل صلاحية التجار */
-function EmployeeDealersAccessRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  if (user?.role === UserRole.Employee && user?.canAccessDealers !== true) {
-    return <Navigate to="/admin/subscribers" replace />;
-  }
-  return <>{children}</>;
-}
-
-/** تحويلات أرصدة التجار — مطابقة الباكند (أحد: حسابات، تجار، مواد/مبيعات) */
-function EmployeeBalanceTransfersAccessRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  if (user?.role !== UserRole.Employee) return <>{children}</>;
-  const ok =
-    user.canAccessAccounts === true ||
-    user.canAccessDealers === true ||
-    user.canManageMaterialsAndSales === true;
-  if (!ok) return <Navigate to="/admin/subscribers" replace />;
-  return <>{children}</>;
-}
-
-/** فواتير العملاء: للموظف فقط عند تفعيل canAccessInvoices */
-function EmployeeCustomerInvoicesAccessRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  if (user?.role === UserRole.Employee && user?.canAccessInvoices !== true) {
     return <Navigate to="/admin/subscribers" replace />;
   }
   return <>{children}</>;
@@ -248,28 +197,6 @@ function App() {
                       </FeatureGuard>
                     </ProtectedRoute>
                   } />
-                  {/* Materials - Admin, Agent, SubAgent، أو موظف بصلاحية المواد */}
-                  <Route path="materials" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <MaterialsAccessRoute>
-                        <MaterialsPage />
-                      </MaterialsAccessRoute>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="materials/disbursed" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <MaterialsAccessRoute>
-                        <MaterialsDisbursementPage />
-                      </MaterialsAccessRoute>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="materials/sales-history" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <MaterialsAccessRoute>
-                        <MaterialsDisbursementPage />
-                      </MaterialsAccessRoute>
-                    </ProtectedRoute>
-                  } />
                   <Route path="agents" element={
                     <ProtectedRoute allowedRoles={[UserRole.Admin]}>
                       <AgentsPage />
@@ -314,29 +241,6 @@ function App() {
                   } />
                   */}
                   
-                  {/* حسابات المشتركين + حسابات مشتركين الوكلاء */}
-                  <Route path="reports/other-dealer" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <RestrictedEmployeeRoute routePath="reports">
-                        <AccountsOtherDealerPage />
-                      </RestrictedEmployeeRoute>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="reports" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <RestrictedEmployeeRoute routePath="reports">
-                        <ReportsPage />
-                      </RestrictedEmployeeRoute>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="reports/app-subscribers" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <RestrictedEmployeeRoute routePath="reports">
-                        <AppSubscribersAccountsPage />
-                      </RestrictedEmployeeRoute>
-                    </ProtectedRoute>
-                  } />
-
                   <Route path="activity-log" element={
                     <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent]}>
                       <SystemLogPage />
@@ -357,20 +261,6 @@ function App() {
                   <Route path="balance" element={
                     <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
                       <BalancePage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="customer-invoices" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <EmployeeCustomerInvoicesAccessRoute>
-                        <CustomerInvoicesPage />
-                      </EmployeeCustomerInvoicesAccessRoute>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Debts - Admin, Agent, SubAgent, Employee */}
-                  <Route path="debts" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <DebtsPage />
                     </ProtectedRoute>
                   } />
                   {/* المصاريف - مخفى عن الموظف المقيد */}
@@ -409,27 +299,6 @@ function App() {
                       <ResellersPage />
                     </ProtectedRoute>
                   } />
-                  <Route path="dealers" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <EmployeeDealersAccessRoute>
-                        <DealersPage />
-                      </EmployeeDealersAccessRoute>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="dealers/debts" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <EmployeeDealersAccessRoute>
-                        <DealerDebtsPage />
-                      </EmployeeDealersAccessRoute>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="dealers/balance-transfers" element={
-                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
-                      <EmployeeBalanceTransfersAccessRoute>
-                        <DealerBalanceTransfersPage />
-                      </EmployeeBalanceTransfersAccessRoute>
-                    </ProtectedRoute>
-                  } />
                   {/* إدارة الوكلاء والأبراج — الوكيل الرئيسي فقط */}
                   <Route path="main-agent/sub-agents" element={
                     <ProtectedRoute allowedRoles={[UserRole.MainAgent]}>
@@ -454,11 +323,6 @@ function App() {
                   <Route path="main-agent/sub-agents/renewals" element={
                     <ProtectedRoute allowedRoles={[UserRole.MainAgent]}>
                       <MainAgentSubAgentRenewalsPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="main-agent/sub-agents/debts" element={
-                    <ProtectedRoute allowedRoles={[UserRole.MainAgent]}>
-                      <MainAgentSubAgentDebtsPage />
                     </ProtectedRoute>
                   } />
                   <Route path="main-agent/sub-agents/daily-account" element={

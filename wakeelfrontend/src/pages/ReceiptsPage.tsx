@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 import { useOffline } from '../contexts/OfflineContext';
 import { useDigits } from '../contexts/DigitsContext';
 import { apiService, ApiService } from '../services/api';
@@ -12,6 +13,7 @@ import {
   renewalLikeToActivationPrintPayload,
 } from '../utils/activationReceiptPrintHtml';
 import { fetchReceiptsWithCache } from '../services/offlineSync';
+import { showError, showSuccess } from '../utils/notifications';
 import { RenewalReceipt, PaymentStatus, ActivationType, AgentReseller, UserRole } from '../types';
 import WifiLoaderComponent from '../components/WifiLoaderComponent';
 import { 
@@ -25,6 +27,7 @@ import {
   X,
   FileSpreadsheet,
   Zap,
+  Trash2,
 } from 'lucide-react';
 
 const ReceiptsPage: React.FC = () => {
@@ -49,11 +52,35 @@ const ReceiptsPage: React.FC = () => {
   const [selectedOperationalResellerId, setSelectedOperationalResellerId] = useState<string>('');
   const printRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const { confirmAction } = useConfirmation();
 
   const { data: myAgent } = useMyAgent(!!isAuthenticated);
 
   const isAgentOrSubAgentOrEmployee =
     user?.role === UserRole.Agent || user?.role === UserRole.SubAgent || user?.role === UserRole.Employee;
+  const canCancelRenewal =
+    user?.role === UserRole.Admin || user?.role === UserRole.Agent || user?.role === UserRole.SubAgent;
+
+  const cancelRenewalMutation = useMutation({
+    mutationFn: (id: string) => apiService.cancelRenewal(id),
+    onSuccess: async () => {
+      showSuccess('تم إلغاء التفعيل', 'تمت إعادة الرصيد واستعادة حالة الاشتراك السابقة.');
+      await queryClient.invalidateQueries({ queryKey: ['renewal-receipts'], refetchType: 'all' });
+    },
+    onError: (error) => showError('تعذر إلغاء التفعيل', ApiService.showError(error)),
+  });
+
+  const handleCancelRenewal = async (receipt: RenewalReceipt) => {
+    if (!online) {
+      showError('غير متاح دون اتصال', 'إلغاء التفعيل يحتاج اتصالاً بالخادم.');
+      return;
+    }
+    const confirmed = await confirmAction(
+      'إلغاء التفعيل',
+      `سيتم حذف آخر تفعيل للمشترك «${receipt.subscriberName}» وإرجاع رصيد الباقة وتاريخ الاشتراك السابق.`
+    );
+    if (confirmed) cancelRenewalMutation.mutate(receipt.id);
+  };
 
   const { data: myResellers = [] } = useQuery<AgentReseller[]>({
     queryKey: ['myResellers'],
@@ -213,14 +240,16 @@ const ReceiptsPage: React.FC = () => {
     setShowReceiptModal(true);
     setShowDropdown(null);
   };
-  void _handleViewReceipt;
 
   const handlePrintReceipt = async (receipt: RenewalReceipt) => {
     setSelectedReceipt(receipt);
     setTimeout(async () => {
-      // إنشاء نافذة طباعة جديدة
+      // نافذة طباعة النظام تعرض كل الطابعات المثبتة: USB وBluetooth والشبكة.
       const printWindow = window.open('', '_blank');
-      if (!printWindow) return;
+      if (!printWindow) {
+        showError('تعذر فتح الطباعة', 'يرجى السماح بالنوافذ المنبثقة ثم إعادة المحاولة.');
+        return;
+      }
 
       const printBase = {
         appOrigin: typeof window !== 'undefined' ? window.location.origin : '',
@@ -253,13 +282,16 @@ const ReceiptsPage: React.FC = () => {
       printWindow.document.write(printContent);
       printWindow.document.close();
 
-      // انتظار تحميل المحتوى ثم الطباعة
-      printWindow.onload = () => {
-        setTimeout(() => {
-          printWindow.print();
-          printWindow.close();
-        }, 500);
+      let printInvoked = false;
+      const printWithSystemDialog = () => {
+        if (printInvoked) return;
+        printInvoked = true;
+        printWindow.focus();
+        printWindow.print();
+        printWindow.onafterprint = () => printWindow.close();
       };
+      printWindow.onload = printWithSystemDialog;
+      setTimeout(printWithSystemDialog, 700);
     }, 100);
     setShowDropdown(null);
   };
@@ -672,7 +704,7 @@ const ReceiptsPage: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => setSelectedReceipt(receipt)}
+                        onClick={() => _handleViewReceipt(receipt)}
                         className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
                       >
                         <Eye className="h-4 w-4" />
@@ -684,6 +716,16 @@ const ReceiptsPage: React.FC = () => {
                       >
                         <Printer className="h-4 w-4" />
                       </button>
+                      {canCancelRenewal && (
+                        <button
+                          onClick={() => void handleCancelRenewal(receipt)}
+                          disabled={cancelRenewalMutation.isPending}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300"
+                          title="إلغاء التفعيل وإرجاع الرصيد"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

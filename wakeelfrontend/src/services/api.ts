@@ -2802,6 +2802,10 @@ class ApiService {
   }
 
   // Renewal Receipts endpoints
+  async cancelRenewal(id: string): Promise<void> {
+    await this.api.post(`/Renewals/${id}/cancel`);
+  }
+
   async getRenewalReceipts(
     page: number = 1,
     size: number = 10,
