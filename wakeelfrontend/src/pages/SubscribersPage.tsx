@@ -67,6 +67,19 @@ const SUBSCRIBERS_TABLE_COLUMNS: { id: string; label: string }[] = [
   { id: 'status', label: 'الحالة' },
 ];
 
+function googleMapsUrlFromCoordinates(value?: string | null): string | null {
+  const coordinates = (value ?? '').trim();
+  const match = coordinates.match(
+    /^\s*(-?\d+(?:\.\d+)?)\s*[,،]\s*(-?\d+(?:\.\d+)?)\s*$/
+  );
+  if (!match) return null;
+  const latitude = Number(match[1]);
+  const longitude = Number(match[2]);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180)
+    return null;
+  return `https://www.google.com/maps?q=${encodeURIComponent(`${latitude},${longitude}`)}`;
+}
+
 /** للتأكد من فتح صفحة إدارة المستخدمين فقط لـ Earthlink، وليس رابط التفعيل المباشر (#/user/activate/xxx) */
 function normalizeEarthlinkActivationUrl(url: string | undefined): string | undefined {
   if (!url || typeof url !== 'string') return url;
@@ -2932,7 +2945,21 @@ const SubscribersPage: React.FC = () => {
                     </div>
                   </td>
                   <td className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white ${col('fat')}`}>
-                    {subscriber.fat ?? '—'}
+                    {(() => {
+                      const mapsUrl = googleMapsUrlFromCoordinates(subscriber.fat);
+                      return mapsUrl ? (
+                        <button
+                          type="button"
+                          onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
+                          className="text-primary-600 underline decoration-dotted underline-offset-2 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200"
+                          title="فتح الموقع في خرائط Google"
+                        >
+                          {subscriber.fat}
+                        </button>
+                      ) : (
+                        subscriber.fat ?? '—'
+                      );
+                    })()}
                   </td>
                   <td className={`px-2 sm:px-4 lg:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white ${col('zone')}`}>
                     {subscriber.zone ?? '—'}
