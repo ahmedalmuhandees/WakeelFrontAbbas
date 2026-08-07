@@ -28,6 +28,8 @@ const PackagesPage = lazy(() => import('./pages/PackagesPage'));
 const AgentsPage = lazy(() => import('./pages/AgentsPage'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
 const SystemLogPage = lazy(() => import('./pages/SystemLogPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const AppSubscribersAccountsPage = lazy(() => import('./pages/AppSubscribersAccountsPage'));
 const ReceiptsPage = lazy(() => import('./pages/ReceiptsPage'));
 const ActivationRequestsPage = lazy(() => import('./pages/ActivationRequestsPage'));
 const BalancePage = lazy(() => import('./pages/BalancePage'));
@@ -240,6 +242,21 @@ function App() {
                     </ProtectedRoute>
                   } />
                   */}
+
+                  <Route path="reports" element={
+                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
+                      <RestrictedEmployeeRoute routePath="reports">
+                        <ReportsPage />
+                      </RestrictedEmployeeRoute>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="reports/app-subscribers" element={
+                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
+                      <RestrictedEmployeeRoute routePath="reports">
+                        <AppSubscribersAccountsPage />
+                      </RestrictedEmployeeRoute>
+                    </ProtectedRoute>
+                  } />
                   
                   <Route path="activity-log" element={
                     <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent]}>

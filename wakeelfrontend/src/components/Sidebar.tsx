@@ -147,6 +147,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
     },
     {
+      name: 'حسابات المشتركين',
+      path: '/admin/reports',
+      icon: BarChart3,
+      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
+    },
+    {
+      name: 'حسابات مشتركين التطبيق',
+      path: '/admin/reports/app-subscribers',
+      icon: BarChart3,
+      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
+    },
+    {
       name: 'سجل النظام',
       path: '/admin/activity-log',
       icon: History,
