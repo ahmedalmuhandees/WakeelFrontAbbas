@@ -15,6 +15,7 @@ import { Subscriber, SubscriptionStatus, SubscriptionType, SubscriberCreateReque
 import {
   buildActivationReceiptPrintHtml,
   renewalLikeToActivationPrintPayload,
+  waitForDocumentImages,
 } from '../utils/activationReceiptPrintHtml';
 import { getBaghdadDefaultExportRangeLast30Days, getBaghdadRangeBoundsIso, getBaghdadTodayYmd } from '../utils/iraqCalendar';
 import { styleAccountsExportExcelBlob } from '../utils/excelExport';
@@ -1789,22 +1790,30 @@ const SubscribersPage: React.FC = () => {
     printWindow.document.close();
     
     let printInvoked = false;
-    const doPrintOnce = () => {
+    const doPrintOnce = async () => {
       if (printInvoked) return;
       printInvoked = true;
+      await waitForDocumentImages(printWindow.document);
+      if ('fonts' in printWindow.document) {
+        await printWindow.document.fonts.ready.catch(() => undefined);
+      }
+      // يضمن ظهور محتوى الوصل في معاينة Android قبل استدعاء print().
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
       printWindow.focus();
       printWindow.print();
       const closeAfterPrint = () => {
-      printWindow.close();
+        printWindow.close();
       };
       if (typeof printWindow.onafterprint !== 'undefined') {
         printWindow.onafterprint = closeAfterPrint;
-    } else {
+      } else {
         setTimeout(closeAfterPrint, 1500);
       }
     };
 
-    printWindow.onload = doPrintOnce;
+    printWindow.addEventListener('load', () => void doPrintOnce(), { once: true });
+    // fallback لـ Android WebView إذا لم يصل حدث load بعد document.write.
+    window.setTimeout(() => void doPrintOnce(), 1500);
   };
 
   const getWhatsAppReminderErrorMessage = (err: any): string => {

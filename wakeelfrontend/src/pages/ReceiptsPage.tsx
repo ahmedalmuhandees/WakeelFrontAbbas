@@ -11,6 +11,7 @@ import type { ActivationInvoicePrintSettingsDto } from '../types';
 import {
   buildActivationReceiptPrintHtml,
   renewalLikeToActivationPrintPayload,
+  waitForDocumentImages,
 } from '../utils/activationReceiptPrintHtml';
 import { fetchReceiptsWithCache } from '../services/offlineSync';
 import { showError, showSuccess } from '../utils/notifications';
@@ -243,56 +244,65 @@ const ReceiptsPage: React.FC = () => {
 
   const handlePrintReceipt = async (receipt: RenewalReceipt) => {
     setSelectedReceipt(receipt);
-    setTimeout(async () => {
-      // نافذة طباعة النظام تعرض كل الطابعات المثبتة: USB وBluetooth والشبكة.
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        showError('تعذر فتح الطباعة', 'يرجى السماح بالنوافذ المنبثقة ثم إعادة المحاولة.');
-        return;
+    // تُفتح النافذة ضمن نقرة المستخدم مباشرةً؛ Android قد يحجب النافذة إذا فُتحت بعد await/setTimeout.
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      showError('تعذر فتح الطباعة', 'يرجى السماح بالنوافذ المنبثقة ثم إعادة المحاولة.');
+      return;
+    }
+    printWindow.document.write('<!DOCTYPE html><title>جاري تجهيز الوصل…</title><p dir="rtl">جاري تجهيز الوصل للطباعة…</p>');
+    printWindow.document.close();
+
+    const printBase = {
+      appOrigin: typeof window !== 'undefined' ? window.location.origin : '',
+      apiBaseUrl: apiService.getBaseURL(),
+    };
+
+    let settings: ActivationInvoicePrintSettingsDto = {};
+    try {
+      settings = await apiService.getActivationInvoicePrintSettings(myAgent?.id || undefined);
+    } catch {
+      settings = {};
+    }
+
+    const printContent = buildActivationReceiptPrintHtml(
+      settings,
+      renewalLikeToActivationPrintPayload({
+        ...(receipt as unknown as Record<string, unknown>),
+        username: (receipt as { username?: string }).username,
+        userId: (receipt as { username?: string; userId?: string }).userId ?? (receipt as { username?: string }).username,
+        renewalPeriod: (receipt as { renewalPeriod?: number }).renewalPeriod,
+      }),
+      {
+        formatDate,
+        locale,
+        ...printBase,
+        fallbackOrganizerName: (user?.fullName || user?.username || '').trim() || undefined,
       }
+    );
 
-      const printBase = {
-        appOrigin: typeof window !== 'undefined' ? window.location.origin : '',
-        apiBaseUrl: apiService.getBaseURL(),
-      };
+    printWindow.document.open();
+    printWindow.document.write(printContent);
+    printWindow.document.close();
 
-      let settings: ActivationInvoicePrintSettingsDto = {};
-      try {
-        settings = await apiService.getActivationInvoicePrintSettings(myAgent?.id || undefined);
-      } catch {
-        settings = {};
+    let printInvoked = false;
+    const printWithSystemDialog = async () => {
+      if (printInvoked) return;
+      printInvoked = true;
+      await waitForDocumentImages(printWindow.document);
+      if ('fonts' in printWindow.document) {
+        await printWindow.document.fonts.ready.catch(() => undefined);
       }
-
-      const printContent = buildActivationReceiptPrintHtml(
-        settings,
-        renewalLikeToActivationPrintPayload({
-          ...(receipt as unknown as Record<string, unknown>),
-          username: (receipt as { username?: string }).username,
-          userId: (receipt as { username?: string; userId?: string }).userId ?? (receipt as { username?: string }).username,
-          renewalPeriod: (receipt as { renewalPeriod?: number }).renewalPeriod,
-        }),
-        {
-          formatDate,
-          locale,
-          ...printBase,
-          fallbackOrganizerName: (user?.fullName || user?.username || '').trim() || undefined,
-        }
-      );
-
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-
-      let printInvoked = false;
-      const printWithSystemDialog = () => {
-        if (printInvoked) return;
-        printInvoked = true;
+      // مهلة قصيرة بعد اكتمال الصور/الخطوط تمنع معاينة Android الفارغة.
+      window.setTimeout(() => {
         printWindow.focus();
         printWindow.print();
         printWindow.onafterprint = () => printWindow.close();
-      };
-      printWindow.onload = printWithSystemDialog;
-      setTimeout(printWithSystemDialog, 700);
-    }, 100);
+      }, 150);
+    };
+    printWindow.addEventListener('load', () => void printWithSystemDialog(), { once: true });
+    // بعض WebViews في Android لا تطلق load لنافذة about:blank بعد document.write.
+    window.setTimeout(() => void printWithSystemDialog(), 1_500);
     setShowDropdown(null);
   };
 

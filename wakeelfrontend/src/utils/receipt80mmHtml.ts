@@ -154,7 +154,7 @@ export function buildReceipt80mmDocumentHtml(
       </div>
 
       <div class="r80-duration">
-        <div class="r80-duration-label">مدة الاشتراك</div>
+        <div class="r80-duration-label">الأيام المتبقية من الاشتراك</div>
         <div class="r80-duration-value">${duration > 0 ? `${duration} يوم` : '—'}</div>
         <div class="r80-sign-line"></div>
       </div>
