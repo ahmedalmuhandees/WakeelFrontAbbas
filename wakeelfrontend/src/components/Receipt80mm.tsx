@@ -144,12 +144,15 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
 
 export default Receipt80mm;
 
-/** CSS مشترك للعرض والطباعة — عرض 302px / 80mm */
+/** عرض آمن لورق 80mm — بالبكسل فقط (أوثق من mm مع طابعات POS) */
+const RECEIPT_PAPER_WIDTH_PX = 280;
+
+/** CSS مشترك للعرض والطباعة */
 export const RECEIPT_80MM_CSS = `
 .receipt80mm-root {
   --r80-blue: #1a5fb4;
   --r80-orange: #e67e22;
-  font-family: Cairo, "Noto Kufi Arabic", Tahoma, Arial, sans-serif;
+  font-family: Tahoma, Arial, "Segoe UI", sans-serif;
   color: #111;
   background: #eee;
   padding: 12px;
@@ -163,13 +166,12 @@ export const RECEIPT_80MM_CSS = `
   box-sizing: border-box;
 }
 .r80-paper {
-  width: 272px;
-  max-width: 72mm;
+  width: ${RECEIPT_PAPER_WIDTH_PX}px;
+  max-width: 100%;
   background: #fff;
-  padding: 10px 8px 12px;
+  padding: 6px;
   box-shadow: 0 0 8px rgba(0,0,0,.15);
   overflow: hidden;
-  box-sizing: border-box;
 }
 .r80-header {
   text-align: center;
@@ -180,8 +182,8 @@ export const RECEIPT_80MM_CSS = `
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 6px;
-  overflow: visible;
+  gap: 4px;
+  overflow: hidden;
 }
 .r80-logo-fiberx,
 .r80-logo-ministry,
@@ -198,12 +200,12 @@ export const RECEIPT_80MM_CSS = `
   overflow: visible;
 }
 .r80-logo-fiberx {
-  width: 88px;
-  max-height: 36px;
+  width: 68px;
+  max-height: 30px;
 }
 .r80-logo-ministry {
-  width: 74px;
-  max-height: 74px;
+  width: 58px;
+  max-height: 58px;
 }
 .r80-brand-center {
   flex: 1 1 auto;
@@ -212,8 +214,8 @@ export const RECEIPT_80MM_CSS = `
   overflow: visible;
 }
 .r80-logo-x {
-  width: 92px;
-  max-height: 56px;
+  width: 72px;
+  max-height: 44px;
   margin: 0 auto 4px;
 }
 .r80-title-ar {
@@ -246,8 +248,8 @@ export const RECEIPT_80MM_CSS = `
   min-width: 0;
 }
 .r80-logo-iraqiya {
-  width: 58px;
-  max-height: 78px;
+  width: 50px;
+  max-height: 68px;
 }
 .r80-logos-bot {
   display: flex;
@@ -255,8 +257,8 @@ export const RECEIPT_80MM_CSS = `
   margin-top: 6px;
 }
 .r80-logo-otetis {
-  width: 120px;
-  max-height: 48px;
+  width: 100px;
+  max-height: 40px;
 }
 
 .r80-userid {
@@ -276,7 +278,7 @@ export const RECEIPT_80MM_CSS = `
   min-height: 14px;
   text-align: left;
   direction: ltr;
-  font-family: Cairo, monospace;
+  font-family: monospace;
 }
 
 .r80-field {
@@ -288,7 +290,7 @@ export const RECEIPT_80MM_CSS = `
   font-weight: 700;
   text-align: right;
 }
-.r80-field-label { flex-shrink: 0; white-space: nowrap; }
+.r80-field-label { flex-shrink: 1; white-space: normal; }
 .r80-field-value {
   flex: 1;
   border-bottom: 1px solid #444;
@@ -363,39 +365,36 @@ export const RECEIPT_80MM_CSS = `
 }
 
 @page {
-  size: 80mm auto;
   margin: 0;
+  size: auto;
 }
 
 @media print {
   html, body {
-    width: 80mm;
     margin: 0 !important;
     padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
     background: #fff !important;
-  }
-
-  *, *::before, *::after {
-    box-sizing: border-box;
+    overflow: visible !important;
   }
 
   .receipt80mm-root {
     background: #fff !important;
     padding: 0 !important;
+    margin: 0 !important;
     display: block !important;
-    width: 80mm;
-    margin: 0 auto;
+    width: auto !important;
   }
 
   .receipt-container,
   .r80-paper {
-    width: 72mm !important;
-    max-width: 72mm !important;
-    margin: 0 auto !important;
-    padding: 2mm !important;
-    box-sizing: border-box;
-    overflow: hidden;
+    width: ${RECEIPT_PAPER_WIDTH_PX}px !important;
+    max-width: ${RECEIPT_PAPER_WIDTH_PX}px !important;
+    margin: 0 !important;
+    padding: 6px !important;
     box-shadow: none !important;
+    overflow: hidden !important;
     page-break-inside: avoid;
   }
 
@@ -403,8 +402,9 @@ export const RECEIPT_80MM_CSS = `
   .r80-logo-ministry,
   .r80-logo-iraqiya,
   .r80-logo-otetis,
-  .r80-logo-x {
-    max-width: 100%;
+  .r80-logo-x,
+  .r80-support-icon {
+    max-width: 100% !important;
   }
 }
 `;

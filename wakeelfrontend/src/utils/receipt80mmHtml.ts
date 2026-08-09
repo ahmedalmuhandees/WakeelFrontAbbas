@@ -82,21 +82,18 @@ export function buildReceipt80mmDocumentHtml(
   const title = opts.documentTitle || `سند قبض — ${receiptNo || ''}`;
 
   return `<!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=80mm, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${escapeHtml(title)}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet" />
   <style>${RECEIPT_80MM_CSS}
-    html, body { margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; background: #fff; }
   </style>
 </head>
 <body>
   <div class="receipt80mm-root">
-    <div class="r80-paper receipt-container">
+    <div class="r80-paper receipt-container" dir="rtl">
       <header class="r80-header">
         <div class="r80-logos-top">
           <img src="${escapeHtml(logos.fiberx)}" alt="FiberX" class="r80-logo-fiberx" />
