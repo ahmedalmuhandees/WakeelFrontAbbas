@@ -1,10 +1,43 @@
-import fiberxLogo from '../images/receipt-logos/fiberx.png';
-import fiberxArLogo from '../images/receipt-logos/fiberx-ar.png';
-import ministryLogo from '../images/receipt-logos/ministry.png';
-import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
-import otetisLogo from '../images/receipt-logos/otetis.png';
-import supportIcon from '../images/receipt-logos/support-icon.png';
-import { RECEIPT_80MM_CSS, type Receipt80mmPackage, type Receipt80mmProps } from '../components/Receipt80mm';
+import type { Receipt80mmPackage, Receipt80mmProps } from '../components/Receipt80mm';
+
+/** CSS بسيط للطابعات الحرارية 80mm — جداول فقط بدون flex */
+export const THERMAL_RECEIPT_CSS = `
+@page { size: 80mm auto; margin: 0; }
+* { box-sizing: border-box; }
+html, body {
+  width: 80mm;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #000;
+  font-family: Tahoma, Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.35;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.receipt {
+  width: 76mm;
+  margin: 0 auto;
+  padding: 2mm;
+  direction: rtl;
+  text-align: right;
+}
+.receipt table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.receipt td { vertical-align: middle; padding: 2px 1px; word-wrap: break-word; }
+.receipt .c { text-align: center; }
+.receipt .b { font-weight: bold; }
+.receipt .line { border-bottom: 1px solid #000; min-height: 14px; }
+.receipt .sep { text-align: center; font-size: 10px; margin: 4px 0; letter-spacing: -0.5px; }
+.receipt img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.receipt .logo-sm { max-width: 58px; max-height: 52px; }
+.receipt .logo-md { max-width: 68px; max-height: 36px; }
+.receipt .logo-lg { max-width: 90px; max-height: 40px; }
+.receipt .uid { background: #e8e8e8; padding: 4px; margin: 6px 0; }
+.receipt .sig { text-align: center; margin: 12px 0 6px; }
+.receipt .sig-line { border-bottom: 1px solid #000; width: 70%; margin: 6px auto; height: 14px; }
+.receipt .footer { border-top: 2px solid #000; margin-top: 8px; padding-top: 6px; font-size: 10px; }
+`;
 
 function escapeHtml(s: string): string {
   return s
@@ -14,16 +47,17 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function absAsset(appOrigin: string, importedPath: string): string {
-  const origin = (appOrigin || '').replace(/\/$/, '');
-  if (!importedPath) return '';
-  if (/^https?:\/\//i.test(importedPath) || importedPath.startsWith('data:')) return importedPath;
-  if (importedPath.startsWith('/')) return `${origin}${importedPath}`;
-  return `${origin}/${importedPath}`;
-}
-
 function formatIqd(n: number): string {
   return `${Number(n || 0).toLocaleString('en-US')} IQD`;
+}
+
+function publicLogoUrl(appOrigin: string, file: string): string {
+  const origin = (appOrigin || '').replace(/\/$/, '');
+  const pub =
+    typeof process !== 'undefined' && process.env.PUBLIC_URL != null
+      ? String(process.env.PUBLIC_URL).replace(/\/$/, '')
+      : '';
+  return `${origin}${pub}/receipt-logos/${file}`.replace(/([^:]\/)\/+/g, '$1');
 }
 
 const DEFAULT_SUPPORT = '7115848660';
@@ -49,12 +83,12 @@ export function buildReceipt80mmDocumentHtml(
 
   const origin = opts.appOrigin || '';
   const logos = {
-    fiberx: absAsset(origin, fiberxLogo),
-    fiberxAr: absAsset(origin, fiberxArLogo),
-    ministry: absAsset(origin, ministryLogo),
-    iraqiya: absAsset(origin, iraqiyaLogo),
-    otetis: absAsset(origin, otetisLogo),
-    support: absAsset(origin, supportIcon),
+    fiberx: publicLogoUrl(origin, 'fiberx.png'),
+    fiberxAr: publicLogoUrl(origin, 'fiberx-ar.png'),
+    ministry: publicLogoUrl(origin, 'ministry.png'),
+    iraqiya: publicLogoUrl(origin, 'iraqiya.png'),
+    otetis: publicLogoUrl(origin, 'otetis.png'),
+    support: publicLogoUrl(origin, 'support-icon.png'),
   };
 
   const pkgs: Receipt80mmPackage[] =
@@ -63,21 +97,18 @@ export function buildReceipt80mmDocumentHtml(
 
   const packagesHtml = pkgs
     .map((pkg, i) => {
-      const dash =
-        i < pkgs.length - 1 ? '<div class="r80-dash">------------------------</div>' : '';
-      return `<div class="r80-pkg">
-        <div class="r80-pkg-label">الباقة</div>
-        <div class="r80-pkg-name">${escapeHtml(pkg.name)}</div>
-        <div class="r80-pkg-label">السعر</div>
-        <div class="r80-pkg-price">${escapeHtml(formatIqd(pkg.price))}</div>
-        ${dash}
-      </div>`;
+      const dash = i < pkgs.length - 1 ? '<tr><td colspan="2" class="sep">------------------------</td></tr>' : '';
+      return `<tr><td colspan="2" class="c b">الباقة</td></tr>
+<tr><td colspan="2" class="c b">${escapeHtml(pkg.name)}</td></tr>
+<tr><td colspan="2" class="c">السعر</td></tr>
+<tr><td colspan="2" class="c b">${escapeHtml(formatIqd(pkg.price))}</td></tr>
+${dash}`;
     })
     .join('');
 
-  const phonesHtml = (phoneLines.length ? phoneLines : DEFAULT_PHONES)
-    .map((p) => `<div>${escapeHtml(p)}</div>`)
-    .join('');
+  const phones = (phoneLines.length ? phoneLines : DEFAULT_PHONES)
+    .map((p) => escapeHtml(p))
+    .join('<br/>');
 
   const title = opts.documentTitle || `سند قبض — ${receiptNo || ''}`;
 
@@ -87,82 +118,74 @@ export function buildReceipt80mmDocumentHtml(
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${escapeHtml(title)}</title>
-  <style>${RECEIPT_80MM_CSS}
-    html, body { margin: 0; padding: 0; background: #fff; }
-  </style>
+  <style>${THERMAL_RECEIPT_CSS}</style>
 </head>
 <body>
-  <div class="receipt80mm-root">
-    <div class="r80-paper receipt-container" dir="rtl">
-      <header class="r80-header">
-        <div class="r80-logos-top">
-          <img src="${escapeHtml(logos.fiberx)}" alt="FiberX" class="r80-logo-fiberx" />
-          <div class="r80-brand-center">
-            <img src="${escapeHtml(logos.fiberxAr)}" alt="فايبر X" class="r80-logo-x" />
-            <div class="r80-title-ar">سند قبض</div>
-            <div class="r80-title-en">Receipt voucher</div>
-          </div>
-          <img src="${escapeHtml(logos.ministry)}" alt="الشركة العامة للاتصالات والمعلوماتية" class="r80-logo-ministry" />
-        </div>
-        <div class="r80-logos-mid">
-          <div class="r80-no">NO: ${escapeHtml(receiptNo || '—')}</div>
-          <img src="${escapeHtml(logos.iraqiya)}" alt="العراقية" class="r80-logo-iraqiya" />
-        </div>
-        <div class="r80-logos-bot">
-          <img src="${escapeHtml(logos.otetis)}" alt="EiTiS" class="r80-logo-otetis" />
-        </div>
-      </header>
+  <div class="receipt">
+    <table>
+      <tr>
+        <td class="c" style="width:30%"><img src="${escapeHtml(logos.fiberx)}" alt="" class="logo-md" /></td>
+        <td class="c" style="width:40%">
+          <img src="${escapeHtml(logos.fiberxAr)}" alt="" class="logo-lg" />
+          <div class="b" style="font-size:15px;margin-top:4px">سند قبض</div>
+          <div style="font-size:9px">Receipt voucher</div>
+        </td>
+        <td class="c" style="width:30%"><img src="${escapeHtml(logos.ministry)}" alt="" class="logo-sm" /></td>
+      </tr>
+    </table>
+    <table style="margin-top:6px">
+      <tr>
+        <td class="b">NO: ${escapeHtml(receiptNo || '—')}</td>
+        <td class="c" style="width:35%"><img src="${escapeHtml(logos.iraqiya)}" alt="" class="logo-sm" /></td>
+      </tr>
+    </table>
+    <div style="margin:6px 0"><img src="${escapeHtml(logos.otetis)}" alt="" class="logo-lg" /></div>
 
-      <div class="r80-userid">
-        <span class="r80-userid-label">User ID</span>
-        <span class="r80-userid-value">${escapeHtml(userId || '—')}</span>
-      </div>
+    <div class="uid">
+      <table>
+        <tr>
+          <td class="b" style="width:30%">User ID</td>
+          <td class="line" style="direction:ltr;text-align:left">${escapeHtml(userId || '—')}</td>
+        </tr>
+      </table>
+    </div>
 
-      <div class="r80-field">
-        <span class="r80-field-label">التاريخ :</span>
-        <span class="r80-field-value">${escapeHtml(date || '—')}</span>
-      </div>
+    <table>
+      <tr><td class="b" style="width:38%">التاريخ :</td><td class="line">${escapeHtml(date || '—')}</td></tr>
+      <tr><td class="b">استلمت من السيد / السادة :</td><td class="line">${escapeHtml(customerName || '—')}</td></tr>
+      <tr><td class="b">مبلغ القبض :</td><td class="line b">${escapeHtml(formatIqd(amount))}</td></tr>
+    </table>
 
-      <div class="r80-field">
-        <span class="r80-field-label">استلمت من السيد / السادة :</span>
-        <span class="r80-field-value">${escapeHtml(customerName || '—')}</span>
-      </div>
+    <div class="sep">========================</div>
+    <table>
+      ${packagesHtml}
+      <tr><td colspan="2" class="sep">------------------------</td></tr>
+      <tr class="total-row">
+        <td class="b">الإجمالي</td>
+        <td class="b" style="text-align:left;direction:ltr">${escapeHtml(formatIqd(total))}</td>
+      </tr>
+    </table>
+    <div class="sep">========================</div>
 
-      <div class="r80-field r80-amount-row">
-        <span class="r80-field-label">مبلغ القبض :</span>
-        <span class="r80-field-value r80-amount">${escapeHtml(formatIqd(amount))}</span>
-      </div>
+    <div class="sig">
+      <div class="b">المستلم</div>
+      <div class="sig-line"></div>
+    </div>
 
-      <div class="r80-packages">
-        <div class="r80-sep">========================</div>
-        ${packagesHtml}
-        <div class="r80-dash">------------------------</div>
-        <div class="r80-total">
-          <span>الإجمالي</span>
-          <strong>${escapeHtml(formatIqd(total))}</strong>
-        </div>
-        <div class="r80-sep">========================</div>
-      </div>
-
-      <div class="r80-sign">
-        <div class="r80-sign-label">المستلم</div>
-        <div class="r80-sign-line"></div>
-      </div>
-
-      <footer class="r80-footer">
-        <div class="r80-footer-rule"><span class="r80-footer-x">X</span></div>
-        <div class="r80-footer-row">
-          <div class="r80-support">
-            <img src="${escapeHtml(logos.support)}" alt="" class="r80-support-icon" />
-            <span>${escapeHtml(supportNumber || DEFAULT_SUPPORT)}</span>
-          </div>
-          <div class="r80-phones">
-            <span class="r80-phones-label">الخط الإلكتروني :</span>
-            <div class="r80-phones-list">${phonesHtml}</div>
-          </div>
-        </div>
-        <div class="r80-stamp">الختم</div>
-      </footer>
+    <div class="footer">
+      <table>
+        <tr>
+          <td style="width:45%;direction:ltr">
+            <img src="${escapeHtml(logos.support)}" alt="" style="width:18px;display:inline;vertical-align:middle" />
+            ${escapeHtml(supportNumber || DEFAULT_SUPPORT)}
+          </td>
+          <td>
+            <div class="b">الخط الإلكتروني :</div>
+            <div style="direction:ltr">${phones}</div>
+          </td>
+        </tr>
+      </table>
+      <div style="margin-top:10px">الختم</div>
     </div>
   </div>
 </body>

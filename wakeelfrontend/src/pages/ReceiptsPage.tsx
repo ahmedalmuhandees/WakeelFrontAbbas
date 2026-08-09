@@ -10,8 +10,8 @@ import { useMyAgent } from '../hooks/useMyAgent';
 import type { ActivationInvoicePrintSettingsDto } from '../types';
 import {
   buildActivationReceiptPrintHtml,
+  printActivationReceiptDocument,
   renewalLikeToActivationPrintPayload,
-  waitForDocumentImages,
 } from '../utils/activationReceiptPrintHtml';
 import { fetchReceiptsWithCache } from '../services/offlineSync';
 import { showError, showSuccess } from '../utils/notifications';
@@ -244,14 +244,11 @@ const ReceiptsPage: React.FC = () => {
 
   const handlePrintReceipt = async (receipt: RenewalReceipt) => {
     setSelectedReceipt(receipt);
-    // تُفتح النافذة ضمن نقرة المستخدم مباشرةً؛ Android قد يحجب النافذة إذا فُتحت بعد await/setTimeout.
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       showError('تعذر فتح الطباعة', 'يرجى السماح بالنوافذ المنبثقة ثم إعادة المحاولة.');
       return;
     }
-    printWindow.document.write('<!DOCTYPE html><title>جاري تجهيز الوصل…</title><p dir="rtl">جاري تجهيز الوصل للطباعة…</p>');
-    printWindow.document.close();
 
     const printBase = {
       appOrigin: typeof window !== 'undefined' ? window.location.origin : '',
@@ -281,28 +278,10 @@ const ReceiptsPage: React.FC = () => {
       }
     );
 
-    printWindow.document.open();
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-
-    let printInvoked = false;
-    const printWithSystemDialog = async () => {
-      if (printInvoked) return;
-      printInvoked = true;
-      await waitForDocumentImages(printWindow.document);
-      if ('fonts' in printWindow.document) {
-        await printWindow.document.fonts.ready.catch(() => undefined);
-      }
-      // مهلة قصيرة بعد اكتمال الصور/الخطوط تمنع معاينة Android الفارغة.
-      window.setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-        printWindow.onafterprint = () => printWindow.close();
-      }, 150);
-    };
-    printWindow.addEventListener('load', () => void printWithSystemDialog(), { once: true });
-    // بعض WebViews في Android لا تطلق load لنافذة about:blank بعد document.write.
-    window.setTimeout(() => void printWithSystemDialog(), 1_500);
+    const printed = await printActivationReceiptDocument(printContent, printWindow);
+    if (!printed) {
+      showError('تعذر فتح الطباعة', 'يرجى السماح بالنوافذ المنبثقة ثم إعادة المحاولة.');
+    }
     setShowDropdown(null);
   };
 

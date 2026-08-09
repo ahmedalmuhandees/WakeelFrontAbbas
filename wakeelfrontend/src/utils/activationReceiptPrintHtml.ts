@@ -180,6 +180,37 @@ export function waitForDocumentImages(doc: Document): Promise<void> {
   ).then(() => undefined);
 }
 
+/** فتح نافذة وطباعة وصل التفعيل — موحّد لطابعات POS الحرارية */
+export async function printActivationReceiptDocument(
+  html: string,
+  existingWindow?: Window | null
+): Promise<boolean> {
+  const printWindow = existingWindow ?? window.open('', '_blank');
+  if (!printWindow) return false;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 200));
+  await waitForDocumentImages(printWindow.document);
+  await new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()));
+  });
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 600));
+
+  printWindow.focus();
+  printWindow.print();
+
+  const close = () => printWindow.close();
+  if (typeof printWindow.onafterprint !== 'undefined') {
+    printWindow.onafterprint = close;
+  } else {
+    window.setTimeout(close, 2000);
+  }
+  return true;
+}
+
 export type ActivationReceiptPrintPayload = {
   receiptNumber: string;
   renewalDate: string;

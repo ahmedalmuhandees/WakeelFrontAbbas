@@ -14,8 +14,8 @@ import { useDigits } from '../contexts/DigitsContext';
 import { Subscriber, SubscriptionStatus, SubscriptionType, SubscriberCreateRequest, Profile, RenewalData, RenewalActivationMode, PaymentStatus, PaginatedResponse, PaginationParams, UserRole, ServiceType, SubscriberNoteType, EARTHLINK_USER_MANAGEMENT_URL, AgentReseller, ProfilePackageType, formatServiceTypeLabelAr, SUBSCRIBER_FETCH_LIMIT_PRESETS, type SubscriberFetchLimitOption, type CashbackSynchronizationFtthResponse, type CashbackSynchronizationFtthRow, type ZainfiSubscriberDiffResponse, type ZainfiSubscriberDiffItem, type ZainfiApplyExternalExpirationRequest, type ActivationInvoicePrintSettingsDto, type BalanceTopUpRequest, type Dealer, type SubscriberNoteTypeOption, User } from '../types';
 import {
   buildActivationReceiptPrintHtml,
+  printActivationReceiptDocument,
   renewalLikeToActivationPrintPayload,
-  waitForDocumentImages,
 } from '../utils/activationReceiptPrintHtml';
 import { getBaghdadDefaultExportRangeLast30Days, getBaghdadRangeBoundsIso, getBaghdadTodayYmd } from '../utils/iraqCalendar';
 import { styleAccountsExportExcelBlob } from '../utils/excelExport';
@@ -1786,34 +1786,10 @@ const SubscribersPage: React.FC = () => {
       fallbackOrganizerName: (user?.fullName || user?.username || '').trim() || undefined,
     });
 
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    
-    let printInvoked = false;
-    const doPrintOnce = async () => {
-      if (printInvoked) return;
-      printInvoked = true;
-      await waitForDocumentImages(printWindow.document);
-      if ('fonts' in printWindow.document) {
-        await printWindow.document.fonts.ready.catch(() => undefined);
-      }
-      // يضمن ظهور محتوى الوصل في معاينة Android قبل استدعاء print().
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 150));
-      printWindow.focus();
-      printWindow.print();
-      const closeAfterPrint = () => {
-        printWindow.close();
-      };
-      if (typeof printWindow.onafterprint !== 'undefined') {
-        printWindow.onafterprint = closeAfterPrint;
-      } else {
-        setTimeout(closeAfterPrint, 1500);
-      }
-    };
-
-    printWindow.addEventListener('load', () => void doPrintOnce(), { once: true });
-    // fallback لـ Android WebView إذا لم يصل حدث load بعد document.write.
-    window.setTimeout(() => void doPrintOnce(), 1500);
+    const printed = await printActivationReceiptDocument(printContent, printWindow);
+    if (!printed) {
+      alert('يرجى السماح بالنوافذ المنبثقة (Pop-ups) لطباعة الفاتورة');
+    }
   };
 
   const getWhatsAppReminderErrorMessage = (err: any): string => {
