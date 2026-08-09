@@ -286,15 +286,6 @@ export function renewalLikeToActivationPrintPayload(r: Record<string, unknown>):
   };
 }
 
-/** عدد الأيام المتبقية حتى انتهاء الاشتراك؛ يستخدم ceil حتى يظهر يوم التفعيل ضمن الأيام المتبقية. */
-function remainingSubscriptionDays(expirationDate: string | null | undefined): number | null {
-  const raw = (expirationDate ?? '').trim();
-  if (!raw) return null;
-  const expiration = new Date(raw);
-  if (Number.isNaN(expiration.getTime())) return null;
-  return Math.max(0, Math.ceil((expiration.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
-}
-
 /**
  * مستند HTML كامل لفاتورة تفعيل / سند قبض POS 80mm (تصميم Fiber X).
  */
@@ -312,7 +303,6 @@ export function buildActivationReceiptPrintHtml(
   }
 ): string {
   const { formatDate, appOrigin } = opts;
-  const remainingDays = remainingSubscriptionDays(receipt.newExpirationDate);
 
   const activationDateStr = receipt.renewalDate
     ? formatDate(receipt.renewalDate, { year: 'numeric', month: 'numeric', day: 'numeric' })
@@ -345,8 +335,6 @@ export function buildActivationReceiptPrintHtml(
       userId: (receipt.userId || '').trim() || receipt.subscriberPhone || '',
       customerName: receipt.subscriberName || '',
       amount: Number(receipt.amountPaid) || Number(receipt.finalPrice) || 0,
-      // المطلوب في الوصل هو الأيام المتبقية فعلياً، لا مدة الباقة الأصلية.
-      duration: remainingDays ?? (Number(receipt.durationDays) || 0),
       packages,
       date: activationDateStr,
       supportNumber,

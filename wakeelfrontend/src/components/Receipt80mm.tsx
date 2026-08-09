@@ -16,7 +16,6 @@ export type Receipt80mmProps = {
   userId: string;
   customerName: string;
   amount: number;
-  duration: number;
   packages: Receipt80mmPackage[];
   /** تاريخ السند — نص جاهز للعرض */
   date?: string;
@@ -42,7 +41,6 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
   userId,
   customerName,
   amount,
-  duration,
   packages,
   date = '',
   supportNumber = DEFAULT_SUPPORT,
@@ -55,7 +53,7 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
   return (
     <div className={`receipt80mm-root ${className}`.trim()} dir="rtl" lang="ar">
       <style>{RECEIPT_80MM_CSS}</style>
-      <div className="r80-paper">
+      <div className="r80-paper receipt-container">
         <header className="r80-header">
           <div className="r80-logos-top">
             <img src={fiberxLogo} alt="FiberX" className="r80-logo-fiberx" />
@@ -119,12 +117,6 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
           <div className="r80-sign-line" />
         </div>
 
-        <div className="r80-duration">
-          <div className="r80-duration-label">مدة الاشتراك</div>
-          <div className="r80-duration-value">{duration > 0 ? `${duration} يوم` : '—'}</div>
-          <div className="r80-sign-line" />
-        </div>
-
         <footer className="r80-footer">
           <div className="r80-footer-rule">
             <span className="r80-footer-x">X</span>
@@ -171,12 +163,13 @@ export const RECEIPT_80MM_CSS = `
   box-sizing: border-box;
 }
 .r80-paper {
-  width: 302px;
-  max-width: 80mm;
+  width: 272px;
+  max-width: 72mm;
   background: #fff;
   padding: 10px 8px 12px;
   box-shadow: 0 0 8px rgba(0,0,0,.15);
-  overflow: visible;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .r80-header {
   text-align: center;
@@ -369,26 +362,49 @@ export const RECEIPT_80MM_CSS = `
   padding-left: 8px;
 }
 
+@page {
+  size: 80mm auto;
+  margin: 0;
+}
+
 @media print {
-  @page { size: 80mm auto; margin: 0; }
   html, body {
+    width: 80mm;
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
-    width: 80mm;
   }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
   .receipt80mm-root {
     background: #fff !important;
     padding: 0 !important;
     display: block !important;
-  }
-  .r80-paper {
-    box-shadow: none !important;
-    width: 80mm !important;
-    max-width: 80mm !important;
+    width: 80mm;
     margin: 0 auto;
+  }
+
+  .receipt-container,
+  .r80-paper {
+    width: 72mm !important;
+    max-width: 72mm !important;
+    margin: 0 auto !important;
+    padding: 2mm !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    box-shadow: none !important;
     page-break-inside: avoid;
-    overflow: visible !important;
+  }
+
+  .r80-logo-fiberx,
+  .r80-logo-ministry,
+  .r80-logo-iraqiya,
+  .r80-logo-otetis,
+  .r80-logo-x {
+    max-width: 100%;
   }
 }
 `;

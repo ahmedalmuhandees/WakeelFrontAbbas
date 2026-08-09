@@ -1774,8 +1774,8 @@ const SubscribersPage: React.FC = () => {
       )?.renewalPeriod ?? undefined;
     const payload = renewalLikeToActivationPrintPayload({
       ...(receipt as Record<string, unknown>),
-      username: receipt.username ?? sub?.username,
-      userId: receipt.userId ?? receipt.username ?? sub?.username,
+      username: receipt.subscriberUsername ?? receipt.username ?? sub?.username,
+      userId: receipt.subscriberUsername ?? receipt.userId ?? receipt.username ?? sub?.username,
       renewalPeriod: receipt.renewalPeriod ?? receipt.durationDays ?? profilePeriod,
     });
 

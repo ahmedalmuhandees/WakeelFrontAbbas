@@ -41,7 +41,6 @@ export function buildReceipt80mmDocumentHtml(
     userId,
     customerName,
     amount,
-    duration,
     packages,
     date = '',
     supportNumber = DEFAULT_SUPPORT,
@@ -97,7 +96,7 @@ export function buildReceipt80mmDocumentHtml(
 </head>
 <body>
   <div class="receipt80mm-root">
-    <div class="r80-paper">
+    <div class="r80-paper receipt-container">
       <header class="r80-header">
         <div class="r80-logos-top">
           <img src="${escapeHtml(logos.fiberx)}" alt="FiberX" class="r80-logo-fiberx" />
@@ -150,12 +149,6 @@ export function buildReceipt80mmDocumentHtml(
 
       <div class="r80-sign">
         <div class="r80-sign-label">المستلم</div>
-        <div class="r80-sign-line"></div>
-      </div>
-
-      <div class="r80-duration">
-        <div class="r80-duration-label">الأيام المتبقية من الاشتراك</div>
-        <div class="r80-duration-value">${duration > 0 ? `${duration} يوم` : '—'}</div>
         <div class="r80-sign-line"></div>
       </div>
 
