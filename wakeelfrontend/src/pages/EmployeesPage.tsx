@@ -38,6 +38,7 @@ const EmployeesPage: React.FC = () => {
   const [newEmployeeData, setNewEmployeeData] = useState<AgentEmployeeCreateRequest>({
     username: '',
     fullName: '',
+    phoneNumber: '',
     password: '',
     role: UserRole.Employee,
     ...DEFAULT_EMPLOYEE_PERMISSIONS,
@@ -45,6 +46,7 @@ const EmployeesPage: React.FC = () => {
   });
   const [editEmployeeData, setEditEmployeeData] = useState<AgentEmployeeUpdateRequest>({
     fullName: '',
+    phoneNumber: '',
     isActive: true,
     ...DEFAULT_EMPLOYEE_PERMISSIONS,
     allowedResellerIds: [],
@@ -67,7 +69,7 @@ const EmployeesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-employees'] });
       setShowAddModal(false);
-      setNewEmployeeData({ username: '', fullName: '', password: '', role: UserRole.Employee, ...DEFAULT_EMPLOYEE_PERMISSIONS, allowedResellerIds: [] });
+      setNewEmployeeData({ username: '', fullName: '', phoneNumber: '', password: '', role: UserRole.Employee, ...DEFAULT_EMPLOYEE_PERMISSIONS, allowedResellerIds: [] });
       showSuccess('تمت الإضافة', 'تم إضافة الموظف بنجاح');
     },
     onError: (err: unknown) => {
@@ -118,6 +120,7 @@ const EmployeesPage: React.FC = () => {
     }
     setEditEmployeeData({
       fullName: emp.fullName || '',
+      phoneNumber: emp.phoneNumber || '',
       isActive: emp.isActive ?? true,
       ...permissions,
       allowedResellerIds: emp.allowedResellerIds ?? [],
@@ -232,7 +235,7 @@ const EmployeesPage: React.FC = () => {
               <button
                 onClick={() => {
                   setShowAddModal(false);
-                  setNewEmployeeData({ username: '', fullName: '', password: '', role: UserRole.Employee, ...DEFAULT_EMPLOYEE_PERMISSIONS, allowedResellerIds: [] });
+                  setNewEmployeeData({ username: '', fullName: '', phoneNumber: '', password: '', role: UserRole.Employee, ...DEFAULT_EMPLOYEE_PERMISSIONS, allowedResellerIds: [] });
                 }}
                 className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
               >
@@ -258,6 +261,17 @@ const EmployeesPage: React.FC = () => {
                     onChange={(e) => setNewEmployeeData((p) => ({ ...p, fullName: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">رقم الهاتف (واتساب)</label>
+                  <input
+                    type="tel"
+                    value={newEmployeeData.phoneNumber || ''}
+                    onChange={(e) => setNewEmployeeData((p) => ({ ...p, phoneNumber: e.target.value }))}
+                    placeholder="07xxxxxxxxx"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">لإرسال تنبيه المهام من رقم واتساب الوكيل</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور *</label>
@@ -344,7 +358,7 @@ const EmployeesPage: React.FC = () => {
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
-                    setNewEmployeeData({ username: '', fullName: '', password: '', role: UserRole.Employee, ...DEFAULT_EMPLOYEE_PERMISSIONS, allowedResellerIds: [] });
+                    setNewEmployeeData({ username: '', fullName: '', phoneNumber: '', password: '', role: UserRole.Employee, ...DEFAULT_EMPLOYEE_PERMISSIONS, allowedResellerIds: [] });
                   }}
                   className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md text-gray-800 dark:text-white"
                 >
@@ -391,6 +405,16 @@ const EmployeesPage: React.FC = () => {
                   type="text"
                   value={editEmployeeData.fullName}
                   onChange={(e) => setEditEmployeeData((p) => ({ ...p, fullName: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">رقم الهاتف (واتساب)</label>
+                <input
+                  type="tel"
+                  value={editEmployeeData.phoneNumber || ''}
+                  onChange={(e) => setEditEmployeeData((p) => ({ ...p, phoneNumber: e.target.value }))}
+                  placeholder="07xxxxxxxxx"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 />
               </div>

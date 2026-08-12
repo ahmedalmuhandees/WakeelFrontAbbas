@@ -1121,6 +1121,7 @@ export interface User {
   id: string;
   username: string;
   fullName: string;
+  phoneNumber?: string;
   isActive: boolean;
   role: UserRole;
   tenantPlanType?: TenantPlanType;
@@ -2312,6 +2313,8 @@ export interface AgentEmployeeCreateRequest {
   password: string;
   /** دور المستخدم: 4 = Employee (موظف)، 5 = SubAgent (مدير ثانوي). القيمة الافتراضية 4. القيم المسموحة في الـ API هما هذان فقط. */
   role?: UserRole;
+  /** رقم هاتف الموظف لتنبيهات المهام عبر واتساب */
+  phoneNumber?: string;
   /** صلاحيات الموظف (اختيارية، افتراضيها true في الباكند) */
   canActivateSubscriber?: boolean;
   canEditSubscriber?: boolean;
@@ -2333,6 +2336,7 @@ export interface AgentEmployeeCreateRequest {
 /** طلب تعديل موظف لوكيل */
 export interface AgentEmployeeUpdateRequest {
   fullName: string;
+  phoneNumber?: string;
   isActive?: boolean;
   canActivateSubscriber?: boolean;
   canEditSubscriber?: boolean;
