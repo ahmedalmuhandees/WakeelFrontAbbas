@@ -14,7 +14,7 @@ const statusLabel: Record<ActivationRequestStatus, string> = {
 
 const ActivationRequestsPage: React.FC = () => {
   const { user } = useAuth();
-  const { formatDate } = useDigits();
+  const { formatDate, formatNumber } = useDigits();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
@@ -66,14 +66,30 @@ const ActivationRequestsPage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 dark:bg-gray-700 text-right">
-            <tr><th className="p-3">المشترك</th><th className="p-3">الرسيلر</th><th className="p-3">الوصل</th><th className="p-3">الحالة</th><th className="p-3">التاريخ</th><th className="p-3">إجراء</th></tr>
+            <tr>
+              <th className="p-3">اسم المشترك</th>
+              <th className="p-3">الباقة</th>
+              <th className="p-3">المبلغ</th>
+              <th className="p-3">الرسيلر</th>
+              <th className="p-3">الوصل</th>
+              <th className="p-3">الحالة</th>
+              <th className="p-3">التاريخ</th>
+              <th className="p-3">إجراء</th>
+            </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={6} className="p-8 text-center">جاري التحميل...</td></tr>}
-            {!isLoading && requests.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-gray-500">لا توجد طلبات.</td></tr>}
+            {isLoading && <tr><td colSpan={8} className="p-8 text-center">جاري التحميل...</td></tr>}
+            {!isLoading && requests.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-gray-500">لا توجد طلبات.</td></tr>}
             {requests.map((item) => (
               <tr key={item.id} className="border-t dark:border-gray-700">
-                <td className="p-3"><div className="font-medium">{item.subscriberName || item.subscriberUsername}</div><div className="text-gray-500">{item.subscriberUsername}</div></td>
+                <td className="p-3">
+                  <div className="font-medium">{item.subscriberName || '—'}</div>
+                  <div className="text-gray-500 text-xs">{item.subscriberUsername || '—'}</div>
+                </td>
+                <td className="p-3">{item.renewal?.newProfileName || '—'}</td>
+                <td className="p-3">
+                  {formatNumber(item.renewal?.finalPrice ?? item.renewal?.amountPaid ?? 0, { suffix: ' د.ع' })}
+                </td>
                 <td className="p-3">{item.agentResellerName || '—'}</td>
                 <td className="p-3">{item.renewal?.receiptNumber || '—'}</td>
                 <td className="p-3"><span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${item.status === ActivationRequestStatus.PendingResellerActivation ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -12,6 +12,7 @@ import { FeatureGuard } from './components/FeatureGuard';
 import Layout from './components/Layout';
 import NotificationContainer from './components/NotificationContainer';
 import OfflineIndicator from './components/OfflineIndicator';
+import { preloadReceiptLogos } from './utils/receiptLogosEmbedded';
 import { useAuth } from './contexts/AuthContext';
 import { TenantPlanType, UserRole } from './types';
 
@@ -31,6 +32,7 @@ const SystemLogPage = lazy(() => import('./pages/SystemLogPage'));
 const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 const AppSubscribersAccountsPage = lazy(() => import('./pages/AppSubscribersAccountsPage'));
 const ReceiptsPage = lazy(() => import('./pages/ReceiptsPage'));
+const DebtsPage = lazy(() => import('./pages/DebtsPage'));
 const ActivationRequestsPage = lazy(() => import('./pages/ActivationRequestsPage'));
 const BalancePage = lazy(() => import('./pages/BalancePage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
@@ -46,6 +48,7 @@ const MainAgentSubAgentCreatePage = lazy(() => import('./pages/MainAgentSubAgent
 const MainAgentSubAgentEditPage = lazy(() => import('./pages/MainAgentSubAgentEditPage'));
 const MainAgentSubAgentSubscribersPage = lazy(() => import('./pages/MainAgentSubAgentSubscribersPage'));
 const MainAgentSubAgentRenewalsPage = lazy(() => import('./pages/MainAgentSubAgentRenewalsPage'));
+const MainAgentSubAgentDebtsPage = lazy(() => import('./pages/MainAgentSubAgentDebtsPage'));
 const MainAgentSubAgentDailyAccountPage = lazy(() => import('./pages/MainAgentSubAgentDailyAccountPage'));
 
 const queryClient = new QueryClient({
@@ -129,6 +132,10 @@ function VipThemeClassManager() {
 }
 
 function App() {
+  useEffect(() => {
+    preloadReceiptLogos();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -275,6 +282,11 @@ function App() {
                       <ActivationRequestsPage />
                     </ProtectedRoute>
                   } />
+                  <Route path="debts" element={
+                    <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
+                      <DebtsPage />
+                    </ProtectedRoute>
+                  } />
                   <Route path="balance" element={
                     <ProtectedRoute allowedRoles={[UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee]}>
                       <BalancePage />
@@ -340,6 +352,11 @@ function App() {
                   <Route path="main-agent/sub-agents/renewals" element={
                     <ProtectedRoute allowedRoles={[UserRole.MainAgent]}>
                       <MainAgentSubAgentRenewalsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="main-agent/sub-agents/debts" element={
+                    <ProtectedRoute allowedRoles={[UserRole.MainAgent]}>
+                      <MainAgentSubAgentDebtsPage />
                     </ProtectedRoute>
                   } />
                   <Route path="main-agent/sub-agents/daily-account" element={

@@ -1,5 +1,6 @@
 import type { ActivationInvoicePrintSettingsDto } from '../types';
 import { buildReceipt80mmDocumentHtml } from './receipt80mmHtml';
+import { ensureReceiptLogosEmbedded } from './receiptLogosEmbedded';
 
 /** ملف في `public/` — شعار ثابت لفاتورة التفعيل (لا يُؤخذ من الباكند) */
 export const ACTIVATION_INVOICE_LOGO_FILENAME = 'activation-invoice-logo.png';
@@ -192,12 +193,11 @@ export async function printActivationReceiptDocument(
   printWindow.document.write(html);
   printWindow.document.close();
 
-  await new Promise<void>((resolve) => window.setTimeout(resolve, 200));
   await waitForDocumentImages(printWindow.document);
   await new Promise<void>((resolve) => {
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()));
   });
-  await new Promise<void>((resolve) => window.setTimeout(resolve, 600));
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 100));
 
   printWindow.focus();
   printWindow.print();
@@ -320,7 +320,7 @@ export function renewalLikeToActivationPrintPayload(r: Record<string, unknown>):
 /**
  * مستند HTML كامل لفاتورة تفعيل / سند قبض POS 80mm (تصميم Fiber X).
  */
-export function buildActivationReceiptPrintHtml(
+export async function buildActivationReceiptPrintHtml(
   settings: ActivationInvoicePrintSettingsDto,
   receipt: ActivationReceiptPrintPayload,
   opts: {
@@ -332,8 +332,9 @@ export function buildActivationReceiptPrintHtml(
     /** إن لم يُرجع الخادم اسم المنفّذ في بيانات الفاتورة — عادة اسم المستخدم الحالي */
     fallbackOrganizerName?: string;
   }
-): string {
+): Promise<string> {
   const { formatDate, appOrigin } = opts;
+  const embeddedLogos = await ensureReceiptLogosEmbedded();
 
   const activationDateStr = receipt.renewalDate
     ? formatDate(receipt.renewalDate, { year: 'numeric', month: 'numeric', day: 'numeric' })
@@ -363,7 +364,7 @@ export function buildActivationReceiptPrintHtml(
   return buildReceipt80mmDocumentHtml(
     {
       receiptNo: receipt.receiptNumber || '',
-      userId: (receipt.userId || '').trim() || receipt.subscriberPhone || '',
+      userId: (receipt.userId || '').trim() || '—',
       customerName: receipt.subscriberName || '',
       amount: Number(receipt.amountPaid) || Number(receipt.finalPrice) || 0,
       packages,
@@ -374,6 +375,7 @@ export function buildActivationReceiptPrintHtml(
     {
       appOrigin,
       documentTitle: `سند قبض — ${receipt.receiptNumber || ''}`,
+      embeddedLogos,
     }
   );
 }

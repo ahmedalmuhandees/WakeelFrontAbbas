@@ -1,4 +1,5 @@
 import type { Receipt80mmPackage, Receipt80mmProps } from '../components/Receipt80mm';
+import type { ReceiptEmbeddedLogos } from './receiptLogosEmbedded';
 
 /** CSS بسيط للطابعات الحرارية 80mm — جداول فقط بدون flex */
 export const THERMAL_RECEIPT_CSS = `
@@ -68,7 +69,7 @@ const DEFAULT_PHONES = ['07701808661', '07881417167'];
  */
 export function buildReceipt80mmDocumentHtml(
   props: Receipt80mmProps,
-  opts: { appOrigin: string; documentTitle?: string }
+  opts: { appOrigin: string; documentTitle?: string; embeddedLogos?: ReceiptEmbeddedLogos }
 ): string {
   const {
     receiptNo,
@@ -82,7 +83,7 @@ export function buildReceipt80mmDocumentHtml(
   } = props;
 
   const origin = opts.appOrigin || '';
-  const logos = {
+  const logos = opts.embeddedLogos ?? {
     fiberx: publicLogoUrl(origin, 'fiberx.png'),
     fiberxAr: publicLogoUrl(origin, 'fiberx-ar.png'),
     ministry: publicLogoUrl(origin, 'ministry.png'),

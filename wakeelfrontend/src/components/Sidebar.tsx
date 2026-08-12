@@ -147,6 +147,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggleCollapse, onClos
       roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
     },
     {
+      name: 'الديون',
+      path: '/admin/debts',
+      icon: CreditCard,
+      roles: [UserRole.Admin, UserRole.Agent, UserRole.SubAgent, UserRole.Employee],
+    },
+    {
       name: 'حسابات المشتركين',
       path: '/admin/reports',
       icon: BarChart3,

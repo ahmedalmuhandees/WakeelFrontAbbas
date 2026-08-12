@@ -1779,7 +1779,7 @@ const SubscribersPage: React.FC = () => {
       renewalPeriod: receipt.renewalPeriod ?? receipt.durationDays ?? profilePeriod,
     });
 
-    const printContent = buildActivationReceiptPrintHtml(settings, payload, {
+    const printContent = await buildActivationReceiptPrintHtml(settings, payload, {
       formatDate,
       locale,
       ...printBase,

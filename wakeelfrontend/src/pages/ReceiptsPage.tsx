@@ -262,12 +262,15 @@ const ReceiptsPage: React.FC = () => {
       settings = {};
     }
 
-    const printContent = buildActivationReceiptPrintHtml(
+    const printContent = await buildActivationReceiptPrintHtml(
       settings,
       renewalLikeToActivationPrintPayload({
         ...(receipt as unknown as Record<string, unknown>),
-        username: receipt.subscriberUsername,
-        userId: receipt.subscriberUsername,
+        username: receipt.subscriberUsername ?? (receipt as { username?: string }).username,
+        userId:
+          receipt.subscriberUsername ??
+          (receipt as { userId?: string }).userId ??
+          (receipt as { username?: string }).username,
         renewalPeriod: (receipt as { renewalPeriod?: number }).renewalPeriod,
       }),
       {
