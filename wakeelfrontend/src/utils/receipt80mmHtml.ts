@@ -31,9 +31,7 @@ html, body {
 .receipt .line { border-bottom: 1px solid #000; min-height: 14px; }
 .receipt .sep { text-align: center; font-size: 10px; margin: 4px 0; letter-spacing: -0.5px; }
 .receipt img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
-.receipt .logo-sm { max-width: 58px; max-height: 52px; }
-.receipt .logo-md { max-width: 68px; max-height: 36px; }
-.receipt .logo-lg { max-width: 90px; max-height: 40px; }
+.receipt .header-banner { width: 100%; height: auto; margin: 0 auto 4px; }
 .receipt .uid { background: #e8e8e8; padding: 4px; margin: 6px 0; }
 .receipt .sig { text-align: center; margin: 12px 0 6px; }
 .receipt .sig-line { border-bottom: 1px solid #000; width: 70%; margin: 6px auto; height: 14px; }
@@ -84,11 +82,7 @@ export function buildReceipt80mmDocumentHtml(
 
   const origin = opts.appOrigin || '';
   const logos = opts.embeddedLogos ?? {
-    fiberx: publicLogoUrl(origin, 'fiberx.png'),
-    fiberxAr: publicLogoUrl(origin, 'fiberx-ar.png'),
-    ministry: publicLogoUrl(origin, 'ministry.png'),
-    iraqiya: publicLogoUrl(origin, 'iraqiya.png'),
-    otetis: publicLogoUrl(origin, 'otetis.png'),
+    header: publicLogoUrl(origin, 'receipt-header.png'),
     support: publicLogoUrl(origin, 'support-icon.png'),
   };
 
@@ -123,25 +117,8 @@ ${dash}`;
 </head>
 <body>
   <div class="receipt">
-    <table>
-      <tr>
-        <td class="c" style="width:30%"><img src="${escapeHtml(logos.iraqiya)}" alt="" class="logo-sm" /></td>
-        <td class="c" style="width:40%">
-          <div class="b" style="font-size:15px">سند قبض</div>
-          <div style="font-size:9px">Receipt voucher</div>
-        </td>
-        <td class="c" style="width:30%"><img src="${escapeHtml(logos.fiberxAr)}" alt="" class="logo-lg" /></td>
-      </tr>
-    </table>
-    <table style="margin-top:6px">
-      <tr>
-        <td class="c" style="width:50%"><img src="${escapeHtml(logos.fiberx)}" alt="" class="logo-md" /></td>
-        <td class="c" style="width:50%;vertical-align:top">
-          <div class="b" style="font-size:10px;text-align:right;margin-bottom:4px">NO: ${escapeHtml(receiptNo || '—')}</div>
-          <img src="${escapeHtml(logos.otetis)}" alt="" class="logo-lg" style="margin:0 0 0 auto" />
-        </td>
-      </tr>
-    </table>
+    <img src="${escapeHtml(logos.header)}" alt="" class="header-banner" />
+    <div class="b" style="font-size:10px;text-align:right;margin-bottom:6px">NO: ${escapeHtml(receiptNo || '—')}</div>
 
     <div class="uid">
       <table>

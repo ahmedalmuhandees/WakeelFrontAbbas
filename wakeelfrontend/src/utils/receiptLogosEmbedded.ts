@@ -1,25 +1,13 @@
-import fiberxLogo from '../images/receipt-logos/fiberx.png';
-import fiberxArLogo from '../images/receipt-logos/fiberx-ar.png';
-import ministryLogo from '../images/receipt-logos/ministry.png';
-import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
-import otetisLogo from '../images/receipt-logos/otetis.png';
+import receiptHeaderLogo from '../images/receipt-logos/image_2026-08-13_184909713-removebg-preview.png';
 import supportLogo from '../images/receipt-logos/support-icon.png';
 
 export type ReceiptEmbeddedLogos = {
-  fiberx: string;
-  fiberxAr: string;
-  ministry: string;
-  iraqiya: string;
-  otetis: string;
+  header: string;
   support: string;
 };
 
 const LOGO_SOURCES: ReceiptEmbeddedLogos = {
-  fiberx: fiberxLogo,
-  fiberxAr: fiberxArLogo,
-  ministry: ministryLogo,
-  iraqiya: iraqiyaLogo,
-  otetis: otetisLogo,
+  header: receiptHeaderLogo,
   support: supportLogo,
 };
 
