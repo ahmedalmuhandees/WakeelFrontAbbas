@@ -125,22 +125,23 @@ ${dash}`;
   <div class="receipt">
     <table>
       <tr>
-        <td class="c" style="width:30%"><img src="${escapeHtml(logos.fiberx)}" alt="" class="logo-md" /></td>
+        <td class="c" style="width:30%"><img src="${escapeHtml(logos.iraqiya)}" alt="" class="logo-sm" /></td>
         <td class="c" style="width:40%">
-          <img src="${escapeHtml(logos.fiberxAr)}" alt="" class="logo-lg" />
-          <div class="b" style="font-size:15px;margin-top:4px">سند قبض</div>
+          <div class="b" style="font-size:15px">سند قبض</div>
           <div style="font-size:9px">Receipt voucher</div>
         </td>
-        <td class="c" style="width:30%"><img src="${escapeHtml(logos.ministry)}" alt="" class="logo-sm" /></td>
+        <td class="c" style="width:30%"><img src="${escapeHtml(logos.fiberxAr)}" alt="" class="logo-lg" /></td>
       </tr>
     </table>
     <table style="margin-top:6px">
       <tr>
-        <td class="b">NO: ${escapeHtml(receiptNo || '—')}</td>
-        <td class="c" style="width:35%"><img src="${escapeHtml(logos.iraqiya)}" alt="" class="logo-sm" /></td>
+        <td class="c" style="width:50%"><img src="${escapeHtml(logos.fiberx)}" alt="" class="logo-md" /></td>
+        <td class="c" style="width:50%;vertical-align:top">
+          <div class="b" style="font-size:10px;text-align:right;margin-bottom:4px">NO: ${escapeHtml(receiptNo || '—')}</div>
+          <img src="${escapeHtml(logos.otetis)}" alt="" class="logo-lg" style="margin:0 0 0 auto" />
+        </td>
       </tr>
     </table>
-    <div style="margin:6px 0"><img src="${escapeHtml(logos.otetis)}" alt="" class="logo-lg" /></div>
 
     <div class="uid">
       <table>

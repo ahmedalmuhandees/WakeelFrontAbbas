@@ -1,7 +1,6 @@
 import React from 'react';
 import fiberxLogo from '../images/receipt-logos/fiberx.png';
 import fiberxArLogo from '../images/receipt-logos/fiberx-ar.png';
-import ministryLogo from '../images/receipt-logos/ministry.png';
 import iraqiyaLogo from '../images/receipt-logos/iraqiya.png';
 import otetisLogo from '../images/receipt-logos/otetis.png';
 import supportIcon from '../images/receipt-logos/support-icon.png';
@@ -56,20 +55,19 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
       <div className="r80-paper receipt-container">
         <header className="r80-header">
           <div className="r80-logos-top">
-            <img src={fiberxLogo} alt="FiberX" className="r80-logo-fiberx" />
+            <img src={iraqiyaLogo} alt="الشركة العراقية للاتصالات والبريد" className="r80-logo-iraqiya" />
             <div className="r80-brand-center">
-              <img src={fiberxArLogo} alt="فايبر X" className="r80-logo-x" />
               <div className="r80-title-ar">سند قبض</div>
               <div className="r80-title-en">Receipt voucher</div>
             </div>
-            <img src={ministryLogo} alt="الشركة العامة للاتصالات والمعلوماتية" className="r80-logo-ministry" />
+            <img src={fiberxArLogo} alt="فايبر X" className="r80-logo-x" />
           </div>
-          <div className="r80-logos-mid">
-            <div className="r80-no">NO: {receiptNo || '—'}</div>
-            <img src={iraqiyaLogo} alt="العراقية" className="r80-logo-iraqiya" />
-          </div>
-          <div className="r80-logos-bot">
-            <img src={otetisLogo} alt="EiTiS" className="r80-logo-otetis" />
+          <div className="r80-logos-row2">
+            <img src={fiberxLogo} alt="FiberX" className="r80-logo-fiberx" />
+            <div className="r80-row2-right">
+              <div className="r80-no">NO: {receiptNo || '—'}</div>
+              <img src={otetisLogo} alt="EiTiS" className="r80-logo-otetis" />
+            </div>
           </div>
         </header>
 
@@ -186,7 +184,6 @@ export const RECEIPT_80MM_CSS = `
   overflow: hidden;
 }
 .r80-logo-fiberx,
-.r80-logo-ministry,
 .r80-logo-iraqiya,
 .r80-logo-otetis,
 .r80-logo-x,
@@ -203,10 +200,6 @@ export const RECEIPT_80MM_CSS = `
   width: 68px;
   max-height: 30px;
 }
-.r80-logo-ministry {
-  width: 58px;
-  max-height: 58px;
-}
 .r80-brand-center {
   flex: 1 1 auto;
   min-width: 0;
@@ -221,7 +214,7 @@ export const RECEIPT_80MM_CSS = `
 .r80-title-ar {
   font-weight: 900;
   font-size: 17px;
-  margin-top: 6px;
+  margin-top: 0;
   line-height: 1.2;
   color: #000;
 }
@@ -231,12 +224,20 @@ export const RECEIPT_80MM_CSS = `
   letter-spacing: 0.02em;
   margin-top: 2px;
 }
-.r80-logos-mid {
+.r80-logos-row2 {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-top: 8px;
   gap: 8px;
+}
+.r80-row2-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 .r80-no {
   font-weight: 800;
@@ -244,17 +245,10 @@ export const RECEIPT_80MM_CSS = `
   color: #222;
   text-align: right;
   word-break: break-all;
-  flex: 1;
-  min-width: 0;
 }
 .r80-logo-iraqiya {
-  width: 50px;
-  max-height: 68px;
-}
-.r80-logos-bot {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 6px;
+  width: 58px;
+  max-height: 58px;
 }
 .r80-logo-otetis {
   width: 100px;
@@ -399,7 +393,6 @@ export const RECEIPT_80MM_CSS = `
   }
 
   .r80-logo-fiberx,
-  .r80-logo-ministry,
   .r80-logo-iraqiya,
   .r80-logo-otetis,
   .r80-logo-x,
