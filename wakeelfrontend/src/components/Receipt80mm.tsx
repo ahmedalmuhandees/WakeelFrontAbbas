@@ -1,6 +1,5 @@
 import React from 'react';
 import receiptHeaderLogo from '../images/receipt-logos/image_2026-08-13_184909713-removebg-preview.png';
-import supportIcon from '../images/receipt-logos/support-icon.png';
 
 export type Receipt80mmPackage = {
   name: string;
@@ -104,13 +103,13 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
             <span className="r80-footer-x">X</span>
           </div>
           <div className="r80-footer-row">
-            <div className="r80-support">
-              <img src={supportIcon} alt="" className="r80-support-icon" />
-              <span>{supportNumber}</span>
+            <div className="r80-contact-block">
+              <span className="r80-contact-label">الخط الإلكتروني :</span>
+              <div className="r80-contact-value">{supportNumber}</div>
             </div>
-            <div className="r80-phones">
-              <span className="r80-phones-label">الخط الإلكتروني :</span>
-              <div className="r80-phones-list">
+            <div className="r80-contact-block">
+              <span className="r80-contact-label">للاستفسار :</span>
+              <div className="r80-contact-list">
                 {phoneLines.map((p) => (
                   <div key={p}>{p}</div>
                 ))}
@@ -160,8 +159,7 @@ export const RECEIPT_80MM_CSS = `
   margin-bottom: 6px;
   overflow: visible;
 }
-.r80-header-banner,
-.r80-support-icon {
+.r80-header-banner {
   display: block;
   width: 100%;
   height: auto;
@@ -264,15 +262,14 @@ export const RECEIPT_80MM_CSS = `
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
   font-size: 10px;
   font-weight: 700;
 }
-.r80-support { display: flex; align-items: center; gap: 4px; direction: ltr; }
-.r80-support-icon { width: 22px; height: 22px; }
-.r80-phones { text-align: right; }
-.r80-phones-label { display: block; margin-bottom: 2px; }
-.r80-phones-list { direction: ltr; text-align: right; line-height: 1.35; }
+.r80-contact-block { text-align: right; flex: 1; }
+.r80-contact-label { display: block; margin-bottom: 2px; }
+.r80-contact-value,
+.r80-contact-list { direction: ltr; text-align: right; line-height: 1.35; }
 .r80-stamp {
   margin-top: 14px;
   text-align: left;
@@ -315,8 +312,7 @@ export const RECEIPT_80MM_CSS = `
     page-break-inside: avoid;
   }
 
-  .r80-header-banner,
-  .r80-support-icon {
+  .r80-header-banner {
     max-width: 100% !important;
   }
 }

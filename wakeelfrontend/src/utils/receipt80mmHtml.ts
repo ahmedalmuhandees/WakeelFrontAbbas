@@ -154,13 +154,13 @@ ${dash}`;
     <div class="footer">
       <table>
         <tr>
-          <td style="width:45%;direction:ltr">
-            <img src="${escapeHtml(logos.support)}" alt="" style="width:18px;display:inline;vertical-align:middle" />
-            ${escapeHtml(supportNumber || DEFAULT_SUPPORT)}
-          </td>
-          <td>
+          <td style="width:50%;vertical-align:top">
             <div class="b">الخط الإلكتروني :</div>
-            <div style="direction:ltr">${phones}</div>
+            <div style="direction:ltr;text-align:right">${escapeHtml(supportNumber || DEFAULT_SUPPORT)}</div>
+          </td>
+          <td style="width:50%;vertical-align:top">
+            <div class="b">للاستفسار :</div>
+            <div style="direction:ltr;text-align:right">${phones}</div>
           </td>
         </tr>
       </table>
