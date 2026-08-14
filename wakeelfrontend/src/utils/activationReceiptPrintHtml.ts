@@ -272,7 +272,7 @@ export function pickOrganizerNameFromRenewalLike(r: Record<string, unknown>): st
 export function resolveReceiptPackagePrice(r: Record<string, unknown>, finalPrice = 0): number {
   const sale = Number(r.newProfileSalePrice ?? r.NewProfileSalePrice ?? 0);
   const original = Number(r.newProfileOriginalPrice ?? r.NewProfileOriginalPrice ?? 0);
-  const fp = Number(finalPrice || r.finalPrice ?? r.FinalPrice ?? 0);
+  const fp = Number(finalPrice || (r.finalPrice ?? r.FinalPrice ?? 0));
   if (sale > 0) return sale;
   if (fp > 0) return fp;
   if (original > 0) return original;
