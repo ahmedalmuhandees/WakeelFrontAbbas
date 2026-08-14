@@ -75,6 +75,7 @@ export function buildReceipt80mmDocumentHtml(
     customerName,
     amount,
     packages,
+    remainingAmount = 0,
     date = '',
     supportNumber = DEFAULT_SUPPORT,
     phoneLines = DEFAULT_PHONES,
@@ -106,6 +107,10 @@ ${dash}`;
     .join('<br/>');
 
   const title = opts.documentTitle || `سند قبض — ${receiptNo || ''}`;
+  const remainingRow =
+    remainingAmount > 0
+      ? `<tr><td class="b">المتبقي :</td><td class="line b">${escapeHtml(formatIqd(remainingAmount))}</td></tr>`
+      : '';
 
   return `<!DOCTYPE html>
 <html lang="ar">
@@ -133,6 +138,7 @@ ${dash}`;
       <tr><td class="b" style="width:38%">التاريخ :</td><td class="line">${escapeHtml(date || '—')}</td></tr>
       <tr><td class="b">استلمت من السيد / السادة :</td><td class="line">${escapeHtml(customerName || '—')}</td></tr>
       <tr><td class="b">مبلغ القبض :</td><td class="line b">${escapeHtml(formatIqd(amount))}</td></tr>
+      ${remainingRow}
     </table>
 
     <div class="sep">========================</div>
@@ -155,7 +161,7 @@ ${dash}`;
       <table>
         <tr>
           <td style="width:50%;vertical-align:top">
-            <div class="b">الخط الإلكتروني :</div>
+            <div class="b">للدفع الإلكتروني :</div>
             <div style="direction:ltr;text-align:right">${escapeHtml(supportNumber || DEFAULT_SUPPORT)}</div>
           </td>
           <td style="width:50%;vertical-align:top">

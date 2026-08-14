@@ -10,11 +10,14 @@ export type Receipt80mmProps = {
   receiptNo: string;
   userId: string;
   customerName: string;
+  /** مبلغ القبض — المبلغ الذي دفعه المشترك فعلياً */
   amount: number;
   packages: Receipt80mmPackage[];
+  /** المبلغ المتبقي على المشترك (إن وُجد) */
+  remainingAmount?: number;
   /** تاريخ السند — نص جاهز للعرض */
   date?: string;
-  /** أرقام الدعم / الخط الإلكتروني (اختياري) */
+  /** أرقام الدعم / للدفع الإلكتروني (اختياري) */
   supportNumber?: string;
   phoneLines?: string[];
   className?: string;
@@ -37,6 +40,7 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
   customerName,
   amount,
   packages,
+  remainingAmount = 0,
   date = '',
   supportNumber = DEFAULT_SUPPORT,
   phoneLines = DEFAULT_PHONES,
@@ -74,6 +78,13 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
           <span className="r80-field-value r80-amount">{formatIqd(amount)}</span>
         </div>
 
+        {remainingAmount > 0 ? (
+          <div className="r80-field">
+            <span className="r80-field-label">المتبقي :</span>
+            <span className="r80-field-value r80-amount">{formatIqd(remainingAmount)}</span>
+          </div>
+        ) : null}
+
         <div className="r80-packages">
           <div className="r80-sep">========================</div>
           {pkgs.map((pkg, i) => (
@@ -104,7 +115,7 @@ export const Receipt80mm: React.FC<Receipt80mmProps> = ({
           </div>
           <div className="r80-footer-row">
             <div className="r80-contact-block">
-              <span className="r80-contact-label">الخط الإلكتروني :</span>
+              <span className="r80-contact-label">للدفع الإلكتروني :</span>
               <div className="r80-contact-value">{supportNumber}</div>
             </div>
             <div className="r80-contact-block">

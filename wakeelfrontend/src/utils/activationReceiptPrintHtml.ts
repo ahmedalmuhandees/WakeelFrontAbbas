@@ -239,7 +239,6 @@ export type ActivationReceiptPrintPayload = {
   organizerName?: string | null;
 };
 
-/** يستخرج اسم منظم الوصل من حقول متعددة محتملة (camelCase / PascalCase). */
 export function pickOrganizerNameFromRenewalLike(r: Record<string, unknown>): string {
   const keys = [
     'organizerName',
@@ -269,6 +268,17 @@ export function pickOrganizerNameFromRenewalLike(r: Record<string, unknown>): st
   return '';
 }
 
+/** سعر الباقة الأصلي للطباعة — لا يُستبدل بمبلغ الدفع الجزئي. */
+export function resolveReceiptPackagePrice(r: Record<string, unknown>, finalPrice = 0): number {
+  const sale = Number(r.newProfileSalePrice ?? r.NewProfileSalePrice ?? 0);
+  const original = Number(r.newProfileOriginalPrice ?? r.NewProfileOriginalPrice ?? 0);
+  const fp = Number(finalPrice || r.finalPrice ?? r.FinalPrice ?? 0);
+  if (sale > 0) return sale;
+  if (fp > 0) return fp;
+  if (original > 0) return original;
+  return 0;
+}
+
 export function renewalLikeToActivationPrintPayload(r: Record<string, unknown>): ActivationReceiptPrintPayload {
   const fp = Number(r.finalPrice ?? 0);
   const ap = Number(r.amountPaid ?? 0);
@@ -294,7 +304,8 @@ export function renewalLikeToActivationPrintPayload(r: Record<string, unknown>):
       .filter((x): x is { name: string; price: number } => x != null);
   }
   if (!packages?.length && profileName) {
-    packages = [{ name: profileName, price: Number.isFinite(ap) && ap > 0 ? ap : fp }];
+    const packagePrice = resolveReceiptPackagePrice(r, fp);
+    packages = [{ name: profileName, price: packagePrice > 0 ? packagePrice : fp }];
   }
   return {
     receiptNumber: String(r.receiptNumber ?? ''),
@@ -342,16 +353,26 @@ export async function buildActivationReceiptPrintHtml(
 
   const packages =
     receipt.packages && receipt.packages.length > 0
-      ? receipt.packages
+      ? receipt.packages.map((pkg) => ({
+          name: pkg.name,
+          price:
+            Number(receipt.finalPrice) > 0 && receipt.packages!.length === 1
+              ? Number(receipt.finalPrice)
+              : Number(pkg.price) || 0,
+        }))
       : [
           {
             name: receipt.newProfileName || '—',
-            price:
-              Number(receipt.amountPaid) > 0
-                ? Number(receipt.amountPaid)
-                : Number(receipt.finalPrice) || 0,
+            price: Number(receipt.finalPrice) || 0,
           },
         ];
+
+  const amountPaid = Number(receipt.amountPaid) || 0;
+  const packageTotal = packages.reduce((sum, pkg) => sum + (Number(pkg.price) || 0), 0);
+  const remainingAmount =
+    receipt.remainingAmount != null && !Number.isNaN(Number(receipt.remainingAmount))
+      ? Math.max(0, Number(receipt.remainingAmount))
+      : Math.max(0, packageTotal - amountPaid);
 
   const phonesFromSettings = (settings.companyPhones || '')
     .split(/[\n,،|/]+/)
@@ -366,8 +387,9 @@ export async function buildActivationReceiptPrintHtml(
       receiptNo: receipt.receiptNumber || '',
       userId: (receipt.userId || '').trim() || '—',
       customerName: receipt.subscriberName || '',
-      amount: Number(receipt.amountPaid) || Number(receipt.finalPrice) || 0,
+      amount: amountPaid > 0 ? amountPaid : packageTotal,
       packages,
+      remainingAmount,
       date: activationDateStr,
       supportNumber,
       phoneLines,
